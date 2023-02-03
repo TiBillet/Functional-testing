@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-script_home=$( dirname $(realpath "$0") )
+script_home=$(dirname $(realpath "$0"))
 GIT_REPO_PATH=$(dirname $script_home)
 #source $script_home/.env
 
@@ -13,7 +13,6 @@ Help() {
   echo "options:"
   echo "-h     Print this Help."
   echo "-s     Start dev environement"
-  echo "-d     Down dev environement"
   echo "-r     Restart dev environement from scratch"
   echo "-j     Join dev environement if exist"
   echo "-k     Kill dev environement if exist"
@@ -21,39 +20,43 @@ Help() {
   echo
 }
 
-join_session(){
-    sess=$1
-    if [[ $(byobu has-session -t ${sess} &> /dev/null; echo $?) -eq 0 ]]
-    then
-      printf "Joining session %s\n" "${sess}"
-        byobu attach-session -t ${sess}
-    else
-      echo "Session ${sess} does not exist"
-      echo "start or restart it (-d / r) or kill it (-k) !"
-    fi
+join_session() {
+  if [[ $(
+    byobu has-session -t TiBillet &>/dev/null
+    echo $?
+  ) -eq 0 ]]; then
+    printf "Joining session %s\n" "TiBillet"
+    byobu attach-session -t TiBillet
+  else
+    echo "Session TiBillet does not exist"
+    echo "start or restart it (-d / r) or kill it (-k) !"
+  fi
 }
 
-new_session(){
-    sess=$1
-    if [[ $(byobu has-session -t ${sess} &> /dev/null; echo $?) -eq 0 ]]
-    then
-      echo "Session ${sess} already exists"
-      echo "join it (-j) restart it from scratch (-r) or kill it (-k) !"
-    else
-      printf "Starting new session %s\n" "${sess}"
-      start_dev
-    fi
+new_session() {
+  if [[ $(
+    byobu has-session -t TiBillet &>/dev/null
+    echo $?
+  ) -eq 0 ]]; then
+    echo "Session TiBillet already exists"
+    echo "join it (-j) restart it from scratch (-r) or kill it (-k) !"
+  else
+    printf "Starting new session %s\n" "TiBillet"
+    down_before=0
+    start_dev
+  fi
 }
 
-kill_session(){
-    sess=$1
-    if [[ $(byobu has-session -t ${sess} &> /dev/null; echo $?) -eq 0 ]]
-    then
-      printf "Killing session %s\n" "${sess}"
-      byobu kill-session -t ${sess}
-    else
-      echo "Session ${sess} does not exist"
-    fi
+kill_session() {
+  if [[ $(
+    byobu has-session -t TiBillet &>/dev/null
+    echo $?
+  ) -eq 0 ]]; then
+    printf "Killing session %s\n" "TiBillet"
+    byobu kill-session -t TiBillet
+  else
+    echo "Session TiBillet does not exist"
+  fi
 }
 
 ############################################################
@@ -62,7 +65,7 @@ kill_session(){
 ############################################################
 ############################################################
 
-down_dev(){
+down_dev() {
   echo "Remove container and volume if exist"
   cd $GIT_REPO_PATH/TiBillet/Docker/Development/
   docker compose down -v --remove-orphans
@@ -75,12 +78,19 @@ down_dev(){
 }
 
 start_dev() {
+  # On vérifie que Traefik Tourne
+  cd $GIT_REPO_PATH/Traefik-reverse-proxy
+  docker compose up -d
   docker network create frontend
+
 
   byobu new-session -d -s TiBillet -c $GIT_REPO_PATH/TiBillet/Docker/Development/ -e GIT_REPO_PATH=$GIT_REPO_PATH
 
   # Remove all containers and volumes from billetterie
   byobu send-keys 'source $GIT_REPO_PATH/Functional-testing/bash_docker_util.sh' C-m
+  if [ $down_before -eq 1 ]; then
+    byobu send-keys 'docker compose down -v --remove-orphans' C-m
+  fi
   byobu send-keys 'docker compose pull' C-m
   byobu send-keys 'docker compose up -d' C-m
   byobu send-keys 'sleep 2' C-m
@@ -95,6 +105,9 @@ start_dev() {
   # Remove all containers and volumes from Cashless 1
   byobu split-window -v -c $GIT_REPO_PATH/TibilletCashlessDev/Docker/Tests/
   byobu send-keys 'source $GIT_REPO_PATH/Functional-testing/bash_docker_util.sh' C-m
+  if [ $down_before -eq 1 ]; then
+    byobu send-keys 'docker compose down -v --remove-orphans' C-m
+  fi
   byobu send-keys 'docker compose pull' C-m
   byobu send-keys 'docker compose up -d' C-m
   byobu send-keys 'sleep 2' C-m
@@ -106,6 +119,9 @@ start_dev() {
   # Remove all containers and volumes from Cashless 2
   byobu split-window -v -c $GIT_REPO_PATH/TibilletCashlessDev/Docker/Tests2/
   byobu send-keys 'source $GIT_REPO_PATH/Functional-testing/bash_docker_util.sh' C-m
+  if [ $down_before -eq 1 ]; then
+    byobu send-keys 'docker compose down -v --remove-orphans' C-m
+  fi
   byobu send-keys 'docker compose pull' C-m
   byobu send-keys 'docker compose up -d' C-m
   byobu send-keys 'sleep 2' C-m
@@ -149,41 +165,35 @@ start_dev() {
   byobu attach-session -t TiBillet
 }
 
-
-
 ############################################################
 ############################################################
 # Main program                                             #
 ############################################################
 ############################################################
 
-while getopts ":shdjkr" option; do
+while getopts ":shjkr" option; do
   case $option in
   h) # display Help
     Help
     exit
     ;;
   s) # Launch dev session
-    new_session TiBillet
-    exit
-    ;;
-  d) # Down dev session
-    down_dev
+    down_before=0
+    new_session
     exit
     ;;
   r) # Restart session from scratch
-    kill_session TiBillet
-    down_dev
-    new_session TiBillet
+    kill_session
+    down_before=1
+    start_dev -d
     exit
     ;;
   j) # join session if exists
-    join_session TiBillet
+    join_session
     exit
     ;;
   k) # kill session if exists
-    kill_session TiBillet
-    down_dev
+    kill_session
     exit
     ;;
   \?) # Invalid option
@@ -203,4 +213,3 @@ done
 #echo "Original script home: $script_home"
 #echo "Parent GIT : $(dirname $script_home)"
 Help
-
