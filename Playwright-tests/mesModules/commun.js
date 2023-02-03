@@ -1,0 +1,422 @@
+import {test, expect} from '@playwright/test'
+import Big from '../mesModules/big.js'
+import * as dotenv from 'dotenv'
+
+// ajout des variables d'environnement provenant de .env
+dotenv.config()
+
+export const userAgentString = `{"hostname": "${process.env.HOSTNAME}", "token": "${process.env.TOKEN_SOCKET}", "password": "${process.env.PASSWORD}", "modeNfc": "${process.env.MODE_NFC}", "front": "${process.env.FRONT}", "ip": "192.168.1.4"}`
+export const tagId = {
+  carteTest: process.env.DEMO_TAGID_CLIENT1,
+  carteRobocop: process.env.DEMO_TAGID_CLIENT2,
+  carteMaitresse: process.env.DEMO_TAGID_CM,
+  carteInconnue: 'CARTINC0'
+}
+
+// nfc
+export async function updateNfc(page) {
+  // ajout de la fonction émuler lecteur carte nfc
+  await page.evaluate(async () => {
+    SOCKET.close()
+
+    // Etendre la class rfid afin d'émuler la lecture d'une carte
+    class emuleNfc extends Nfc {
+      constructor(length) {
+        super(length, length)
+        this.name = 'simuNfc'
+      }
+
+      emulerLecture(valeur) {
+        // annule la lecture du côté serveur nfc
+        this.annuleLireTagId()
+        // emule la lecture d'un tagId
+        this.verificationTagId(valeur, this.etatLecteurNfc.uuidConnexion)
+      }
+    }
+
+    // mémorise ancien état du lecteur nfc
+    const ancienEtatLecteurNfc = rfid.etatLecteurNfc
+    // remplace l'ancienne class par la class étendue simulant la lecture d'une carte
+    window.rfid = new emuleNfc()
+    // remet l'ancien état de la class rfid
+    window.rfid.etatLecteurNfc = ancienEtatLecteurNfc
+  })
+}
+
+export async function emulateTagIdNfc(page, tagId) {
+  await page.evaluate(async ([tagId]) => {
+    window.rfid.emulerLecture(tagId)
+  }, [tagId])
+}
+
+/**
+ * Connexion de l'appareil avec la carte maîtresse
+ * @param {object} page page html en cours
+ * @param {string} urlTester lien de la page html en cours
+ * @returns {Promise<void>}
+ */
+export const connection = async function (page, urlTester) {
+  await test.step('Connexion', async () => {
+    await page.goto(urlTester)
+
+    // lecture carte (client)
+    await expect(page.locator('text=attente', {ignoreCase: true})).toBeVisible()
+    await expect(page.locator('text=lecture carte', {ignoreCase: true})).toBeVisible()
+    await expect(page.locator('text=carte maîtresse', {ignoreCase: true})).toBeVisible()
+
+    await updateNfc(page)
+    await emulateTagIdNfc(page, tagId.carteMaitresse)
+  })
+}
+
+/**
+ * Aller au point de ventes
+ * @param {object} page page html en cours
+ * @param {string} menu Sélectionne le menu
+ * @returns {Promise<void>}
+ */
+export const goPointSale = async function (page, menu) {
+  await test.step('Aller au menu ' + menu, async () => {
+    // attente affichage menu burger
+    await page.locator('.navbar-menu i[class~="menu-burger-icon"]').waitFor({state: 'visible'})
+    // Clique sur le menu burger
+    await page.locator('.menu-burger-icon').click()
+    // Click text=POINTS DE VENTES
+    await page.locator('text=POINTS DE VENTES').click()
+    // Click #menu-burger-conteneur >> text=Bar 1
+    await page.locator('#menu-burger-conteneur >> text=' + menu.toUpperCase()).click()
+  })
+}
+
+/**
+ * Activation/Désactivation mode gérant
+ * @param {object} page page html en cours
+ * @param {string} status on/off
+ * @returns {Promise<void>}
+ */
+export const managerMode = async function (page, status) {
+  await test.step('Activation/Désactivation mode gérant.', async () => {
+    // attente affichage menu burger
+    await page.locator('.navbar-menu i[class~="menu-burger-icon"]').waitFor({state: 'visible'})
+    // Clique sur le menu burger
+    await page.locator('.menu-burger-icon').click()
+
+    const managerModeON = await page.evaluate(async () => {
+      if (document.querySelector('#conteneur-menu-mode-gerant i[class="fas fa-lock"]') !== null) {
+        return false
+      } else {
+        return true
+      }
+    })
+
+    if ((status === 'on' && managerModeON === false) || (status === 'off' && managerModeON === true)) {
+      // Click #menu-burger-conteneur >> text=Bar 1
+      await page.locator('#conteneur-menu-mode-gerant').click()
+    } else {
+      // clique sur le titre de la navbarre pour sortir du menu
+      await page.locator('.navbar-horizontal .titre-vue').click()
+    }
+  })
+}
+
+
+/**
+ * Vider la carte nfc
+ * @param {object} page page html en cours
+ * @param {string} tagId
+ * @returns {Promise<void>}
+ */
+export const resetCardCashless = async function (page, tagId) {
+  await test.step('vider la carte cashless.', async () => {
+    // attente affichage menu burger
+    await page.locator('.navbar-menu i[class~="menu-burger-icon"]').waitFor({state: 'visible'})
+
+    // Clique sur le menu burger
+    await page.locator('.menu-burger-icon').click()
+    // Click text=POINTS DE VENTES
+    await page.locator('text=POINTS DE VENTES').click()
+    // Click #menu-burger-conteneur >> text=Bar 1
+    await page.locator('#menu-burger-conteneur >> text=CASHLESS').click()
+
+    // attente affichage menu burger
+    await page.locator('.navbar-menu i[class~="menu-burger-icon"]').waitFor({state: 'visible'})
+
+    await page.locator('#products div[data-name-pdv="Cashless"] bouton-article[nom="VIDER CARTE"]').click()
+
+    // cliquer sur bouton "VALIDER"
+    await page.locator('#bt-valider').click()
+
+    // attente affichage "Attente lecture carte"
+    await page.locator('#popup-cashless', {hasText: 'Attente lecture carte'}).waitFor({state: 'visible'})
+
+    // carte nfc de robocop
+    await emulateTagIdNfc(page, tagId)
+
+    // Vidage carte OK !
+    await expect(page.locator('#popup-cashless div[class="popup-titre1"] >> text=Vidage carte OK !')).toBeVisible()
+
+    // sortir de "popup-cashless"
+    await page.locator('#popup-retour').click()
+
+    // #popup-cashless éffacé
+    await expect(page.locator('#popup-cashless')).toBeHidden()
+  })
+}
+
+/**
+ * Créditer une carte de crédits et crédits cadeau
+ * @param {object} page page html en cours
+ * @param {string} tagId
+ * @param {number} nbXCredit10 fois 10 credit
+ * @param {number} nbXCreditCadeau5 fois 5 credit cadeau
+ * @returns {Promise<void>}
+ */
+export const creditCardCashless = async function (page, tagId, nbXCredit10, nbXCreditCadeau5) {
+  await test.step('Crediter la carte cashless.', async () => {
+    // attente affichage menu burger
+    await page.locator('.navbar-menu i[class~="menu-burger-icon"]').waitFor({state: 'visible'})
+
+    // créditer credit, nbXCredit10 x 10 crédits
+    if (nbXCredit10 >= 1) {
+      // Clique sur le menu burger
+      await page.locator('.menu-burger-icon').click()
+      // Click text=POINTS DE VENTES
+      await page.locator('text=POINTS DE VENTES').click()
+      // Click #menu-burger-conteneur >> text=Bar 1
+      await page.locator('#menu-burger-conteneur >> text=CASHLESS').click()
+
+      // attente affichage menu burger
+      await page.locator('.navbar-menu i[class~="menu-burger-icon"]').waitFor({state: 'visible'})
+
+      // 10 crédits
+      await page.locator('#products div[data-name-pdv="Cashless"] bouton-article[nom="TestCoin +10"]').click({clickCount: nbXCredit10})
+
+      // cliquer sur bouton "VALIDER"
+      await page.locator('#bt-valider').click()
+
+      // attente affichage "Type(s) de paiement"
+      await page.locator('#popup-cashless', {hasText: 'Type(s) de paiement'}).waitFor({state: 'visible'})
+
+      // payer en espèces
+      await page.locator('#popup-cashless bouton-basique >> text=ESPECE').click()
+
+      // attente affichage "Attente lecture carte"
+      await page.locator('#popup-cashless', {hasText: 'Attente lecture carte'}).waitFor({state: 'visible'})
+
+      // carte nfc de robocop
+      await emulateTagIdNfc(page, tagId)
+
+      // Transaction OK !
+      await expect(page.locator('#popup-cashless div[class="popup-titre1"] >> text=Transaction OK !')).toBeVisible()
+
+      // sortir de "popup-cashless"
+      await page.locator('#popup-retour').click()
+
+      // #popup-cashless éffacé
+      await expect(page.locator('#popup-cashless')).toBeHidden()
+    }
+
+    // créditer credit cadeau, nbXCreditCadeau5 x 5 crédits cadeau
+    if (nbXCreditCadeau5 >= 1) {
+      // Clique sur le menu burger
+      await page.locator('.menu-burger-icon').click()
+      // Click text=POINTS DE VENTES
+      await page.locator('text=POINTS DE VENTES').click()
+      // Click #menu-burger-conteneur >> text=Bar 1
+      await page.locator('#menu-burger-conteneur >> text=CASHLESS').click()
+
+      // attente affichage menu burger
+      await page.locator('.navbar-menu i[class~="menu-burger-icon"]').waitFor({state: 'visible'})
+
+      // 5 crédits
+      await page.locator('#products div[data-name-pdv="Cashless"] bouton-article[nom="TestCoin Cadeau +5"]').click({clickCount: nbXCreditCadeau5})
+
+      // cliquer sur bouton "VALIDER"
+      await page.locator('#bt-valider').click()
+
+      // attente affichage "Attente lecture carte"
+      await page.locator('#popup-cashless', {hasText: 'Attente lecture carte'}).waitFor({state: 'visible'})
+
+      // carte nfc de robocop
+      await emulateTagIdNfc(page, tagId)
+
+      // Transaction OK !
+      await expect(page.locator('#popup-cashless div[class="popup-titre1"] >> text=Transaction OK !')).toBeVisible()
+
+      // sortir de "popup-cashless"
+      await page.locator('#popup-retour').click()
+
+      // #popup-cashless éffacé
+      await expect(page.locator('#popup-cashless')).toBeHidden()
+    }
+  })
+}
+
+/**
+ * Sélectionne des articles
+ * @param {object} page
+ * @param {array} list liste d'articles avec {nom,nb,prix}
+ * @param {string} pv point de ventes
+ * @returns {Promise<void>}
+ */
+export const selectArticles = async function (page, list, pv) {
+  await test.step('Sélectionner les articles.', async () => {
+    for (const listKey in list) {
+      const article = list[listKey]
+      await page.locator(`#products div[data-name-pdv="${pv}"] bouton-article[nom="${article.nom}"]`).click({clickCount: article.nb})
+    }
+  })
+}
+
+/**
+ * Vérifier addition (check bill)
+ * @param {object} page
+ * @param {array} list
+ * @returns {Promise<void>}
+ */
+export const checkBill = async function (page, list) {
+  await test.step('Sélectionner les articles.', async () => {
+    // nombre de ligne de l'addition
+    await expect(page.locator('#addition-liste .test-addition-article-ligne')).toHaveCount(list.length)
+
+    // articles de l'addition identique à liste articles
+    for (const listKey in list) {
+      const article = list[listKey]
+      // await page.locator('#addition-liste .test-addition-article-ligne', {hasText: article.nom}).locator('.addition-col-prix div').click()
+      await expect(page.locator('#addition-liste .test-addition-article-ligne', {hasText: article.nom}).locator('.addition-col-qte')).toHaveText(article.nb.toString())
+      await expect(page.locator('#addition-liste .test-addition-article-ligne', {hasText: article.nom}).locator('.addition-col-produit div')).toHaveText(article.nom)
+      await expect(page.locator('#addition-liste .test-addition-article-ligne', {hasText: article.nom}).locator('.addition-col-prix div')).toHaveText(article.prix.toString() + '€')
+    }
+  })
+}
+
+/**
+ * Vérifier articles déjà payés dans l'addition
+ * @param {object} page
+ * @param {array} list
+ * @returns {Promise<void>}
+ */
+export const checkAlreadyPaidBill = async function (page, list) {
+  await test.step('Sélectionner les articles.', async () => {
+    // nombre de ligne de l'addition
+    await expect(page.locator('#addition-liste-deja-paye .BF-ligne-deb')).toHaveCount(list.length)
+    // articles de l'addition identique à liste articles
+    for (const listKey in list) {
+      const article = list[listKey]
+      await expect(page.locator('#addition-liste-deja-paye .BF-ligne-deb', {hasText: article.nom}).locator('.addition-col-qte')).toHaveText(article.nb.toString())
+      await expect(page.locator('#addition-liste-deja-paye .BF-ligne-deb', {hasText: article.nom}).locator('.addition-col-produit div')).toHaveText(article.nom)
+      await expect(page.locator('#addition-liste-deja-paye .BF-ligne-deb', {hasText: article.nom}).locator('.addition-col-prix div')).toHaveText(article.prix.toString() + '€')
+    }
+  })
+}
+
+
+/**
+ * Tous les articles de la liste ne sont pas visibles
+ * @param page
+ * @returns {Promise<void>}
+ */
+export const articlesListNoVisible = async function (page) {
+  return await page.evaluate(async () => {
+    let retour = true
+    const liste = document.querySelectorAll('#commandes-table-articles bouton-commande-article')
+    for (let i = 0; i < liste.length; i++) {
+      if (liste[i].style.display !== 'none') {
+        retour = false
+        break
+      }
+    }
+    return retour
+  })
+}
+
+/**
+ * Tous les articles de la liste sont visibles
+ * @param page
+ * @returns {Promise<*>}
+ */
+export const articlesListIsVisible = async function (page) {
+  return await page.evaluate(async () => {
+    let retour = true
+    // dev, casse le test
+    //document.querySelectorAll('#commandes-table-articles bouton-commande-article')[0].style.display = 'none'
+    const liste = document.querySelectorAll('#commandes-table-articles bouton-commande-article')
+    for (let i = 0; i < liste.length; i++) {
+      if (liste[i].style.display !== 'block') {
+        retour = false
+        break
+      }
+    }
+    return retour
+  })
+}
+
+/**
+ * Article pas visible
+ * @param page
+ * @param {string} articleName nom de l'article
+ * @returns {Promise<void>}
+ */
+export const articleNoVisible = async function (page, articleName) {
+  return await page.evaluate(async ([articleName]) => {
+    let retour = true
+    const article = document.querySelector(`#commandes-table-articles bouton-commande-article[data-nom="${articleName}"]`)
+    if (article.style.display !== 'none') {
+      retour = false
+    }
+    return retour
+  }, [articleName])
+}
+
+/**
+ * Article est visible
+ * @param page
+ * @param {string} articleName nom de l'article
+ * @returns {Promise<void>}
+ */
+export const articleIsVisible = async function (page, articleName) {
+  return await page.evaluate(async ([articleName]) => {
+    let retour = true
+    const article = document.querySelector(`#commandes-table-articles bouton-commande-article[data-nom="${articleName}"]`)
+    if (article.style.display !== 'block') {
+      retour = false
+    }
+    return retour
+  }, [articleName])
+}
+
+/**
+ * Affiche la valeur d'un décimal
+ * @param value un décimal Big https://github.com/MikeMcl/big.js
+ * @returns {number}
+ */
+export function bigToFloat(value) {
+  try {
+    return parseFloat(new Big(value).valueOf())
+  } catch (error) {
+    console.log('-> bigToFloat de sys, ', error)
+  }
+}
+
+/**
+ * Aller à la commande de la table
+ * @param {object} page page html en cours
+ * @param {string} table Sélectionne la table par son nom
+ * @returns {Promise<void>}
+ */
+export const goTableOrder = async function (page, table) {
+  await test.step('Aller à la table ' + table, async () => {
+    // attente affichage menu burger
+    await page.locator('.navbar-menu i[class~="menu-burger-icon"]').waitFor({state: 'visible'})
+    // Clique sur le menu burger
+    await page.locator('.menu-burger-icon').click()
+    // Clique sur le menu TABLES
+    await page.locator('text=TABLES').click()
+
+    // attente affichage des tables
+    await page.locator('.navbar-horizontal .titre-vue', {hasText: "Afficher les commandes d'une table"}).waitFor({state: 'visible'})
+
+    // sélectionne la table
+    await page.locator('#tables-liste div[class~="table-bouton"] >> text=' + table).click()
+  })
+}
