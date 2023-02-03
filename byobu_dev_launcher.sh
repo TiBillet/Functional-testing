@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-script_home=$(dirname $(realpath "$0"))
-GIT_REPO_PATH=$(dirname $script_home)
+SCRIPT_HOME=$(dirname $(realpath "$0"))
+GIT_REPO_PATH=$(dirname $SCRIPT_HOME)
 #source $script_home/.env
 
 ############################################################
@@ -18,45 +18,40 @@ Help() {
   echo "-k     Kill dev environement if exist"
   echo "-t     launch test"
   echo
+  exit 1
 }
 
+
+# Joindre une session existante
 join_session() {
-  if [[ $(
-    byobu has-session -t TiBillet &>/dev/null
-    echo $?
-  ) -eq 0 ]]; then
-    printf "Joining session %s\n" "TiBillet"
-    byobu attach-session -t TiBillet
-  else
-    echo "Session TiBillet does not exist"
-    echo "start or restart it (-d / r) or kill it (-k) !"
-  fi
+    if byobu has-session -t TiBillet &>/dev/null; then
+        printf "Joindre la session %s\n" "TiBillet"
+        byobu attach-session -t TiBillet
+    else
+        echo "La session TiBillet n'existe pas"
+        echo "Démarrez ou redémarrez (s / r) ou tuez (-k) !"
+    fi
 }
 
-new_session() {
-  if [[ $(
-    byobu has-session -t TiBillet &>/dev/null
-    echo $?
-  ) -eq 0 ]]; then
-    echo "Session TiBillet already exists"
-    echo "join it (-j) restart it from scratch (-r) or kill it (-k) !"
-  else
-    printf "Starting new session %s\n" "TiBillet"
-    down_before=0
-    start_dev
-  fi
+# Démarrer une nouvelle session
+start_session() {
+    if byobu has-session -t TiBillet &>/dev/null; then
+        echo "La session TiBillet existe déjà"
+        echo "Rejoignez (j) ou redémarrez à partir de zéro (r) ou tuez (-k) !"
+    else
+        printf "Démarrage d'une nouvelle session %s\n" "TiBillet"
+        start_dev
+    fi
 }
 
+# Tuer une session existante
 kill_session() {
-  if [[ $(
-    byobu has-session -t TiBillet &>/dev/null
-    echo $?
-  ) -eq 0 ]]; then
-    printf "Killing session %s\n" "TiBillet"
-    byobu kill-session -t TiBillet
-  else
-    echo "Session TiBillet does not exist"
-  fi
+    if byobu has-session -t TiBillet &>/dev/null; then
+        printf "Suppression de la session %s\n" "TiBillet"
+        byobu kill-session -t TiBillet
+    else
+        echo "La session TiBillet n'existe pas"
+    fi
 }
 
 ############################################################
@@ -65,24 +60,11 @@ kill_session() {
 ############################################################
 ############################################################
 
-down_dev() {
-  echo "Remove container and volume if exist"
-  cd $GIT_REPO_PATH/TiBillet/Docker/Development/
-  docker compose down -v --remove-orphans
-
-  cd $GIT_REPO_PATH/TibilletCashlessDev/Docker/Tests/
-  docker compose down -v --remove-orphans
-
-  cd $GIT_REPO_PATH/TibilletCashlessDev/Docker/Tests2/
-  docker compose down -v --remove-orphans
-}
-
 start_dev() {
-  # On vérifie que Traefik Tourne
+  # Vérifier que Traefik est en cours d'exécution
+  docker network create frontend
   cd $GIT_REPO_PATH/Traefik-reverse-proxy
   docker compose up -d
-  docker network create frontend
-
 
   byobu new-session -d -s TiBillet -c $GIT_REPO_PATH/TiBillet/Docker/Development/ -e GIT_REPO_PATH=$GIT_REPO_PATH
 
@@ -179,7 +161,7 @@ while getopts ":shjkr" option; do
     ;;
   s) # Launch dev session
     down_before=0
-    new_session
+    start_session
     exit
     ;;
   r) # Restart session from scratch
