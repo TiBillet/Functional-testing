@@ -16,6 +16,7 @@ Help() {
   echo "-r     Restart dev environement from scratch"
   echo "-j     Join dev environement if exist"
   echo "-k     Kill dev environement if exist"
+  echo "-d     Down volumes and container without byobu"
   echo "-t     launch test"
   echo
   exit 1
@@ -53,6 +54,19 @@ kill_session() {
         echo "La session TiBillet n'existe pas"
     fi
 }
+
+down_dev(){
+  echo "Remove container and volume if exist"
+  cd $GIT_REPO_PATH/TiBillet/Docker/Development/
+  docker compose down -v --remove-orphans
+
+  cd $GIT_REPO_PATH/TibilletCashlessDev/Docker/Tests/
+  docker compose down -v --remove-orphans
+
+  cd $GIT_REPO_PATH/TibilletCashlessDev/Docker/Tests2/
+  docker compose down -v --remove-orphans
+}
+
 
 ############################################################
 ############################################################
@@ -153,7 +167,7 @@ start_dev() {
 ############################################################
 ############################################################
 
-while getopts ":shjkr" option; do
+while getopts ":shjkrd" option; do
   case $option in
   h) # display Help
     Help
@@ -176,6 +190,10 @@ while getopts ":shjkr" option; do
     ;;
   k) # kill session if exists
     kill_session
+    exit
+    ;;
+  d) # Down without byobu
+    down_dev
     exit
     ;;
   \?) # Invalid option
