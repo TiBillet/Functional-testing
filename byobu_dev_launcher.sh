@@ -12,10 +12,8 @@ Help() {
   echo "bash byobu_dev_launcher.sh [-h|d|r|j|k|t]"
   echo "options:"
   echo "-h     Print this Help."
-  echo "-s     Start dev environement"
-  echo "-r     Restart dev environement from scratch"
-  echo "-j     Join dev environement if exist"
-  echo "-k     Kill dev environement if exist"
+  echo "-s     Start dev environement from scratch"
+  echo "-j     Join dev environement"
   echo "-d     Down volumes and container without byobu"
   echo "-t     launch test"
   echo
@@ -30,20 +28,11 @@ join_session() {
         byobu attach-session -t TiBillet
     else
         echo "La session TiBillet n'existe pas"
-        echo "Démarrez ou redémarrez (s / r) ou tuez (-k) !"
-    fi
-}
-
-# Démarrer une nouvelle session
-start_session() {
-    if byobu has-session -t TiBillet &>/dev/null; then
-        echo "La session TiBillet existe déjà"
-        echo "Rejoignez (j) ou redémarrez à partir de zéro (r) ou tuez (-k) !"
-    else
-        printf "Démarrage d'une nouvelle session %s\n" "TiBillet"
+        printf "Démarrage d'une nouvelle session %s\n" "TiBillet avec les conteuneur existant"
         start_dev
     fi
 }
+
 
 # Tuer une session existante
 kill_session() {
@@ -86,16 +75,16 @@ start_dev() {
   byobu send-keys 'source $GIT_REPO_PATH/Functional-testing/bash_docker_util.sh' C-m
   if [ $down_before -eq 1 ]; then
     byobu send-keys 'docker compose down -v --remove-orphans' C-m
+    byobu send-keys 'docker compose pull' C-m
+    byobu send-keys 'docker compose up -d' C-m
+    byobu send-keys 'sleep 2' C-m
+    byobu send-keys 'docker compose exec billetterie_django_dev bash' C-m
+    byobu send-keys 'python manage.py collectstatic --noinput' C-m
+    byobu send-keys 'python manage.py migrate' C-m
+    byobu send-keys 'python manage.py create_public' C-m
+    byobu send-keys 'python manage.py create_tenant_superuser -s public --username root --email root@root.root --noinput' C-m
+    byobu send-keys 'python manage.py test_user' C-m
   fi
-  byobu send-keys 'docker compose pull' C-m
-  byobu send-keys 'docker compose up -d' C-m
-  byobu send-keys 'sleep 2' C-m
-  byobu send-keys 'docker compose exec billetterie_django_dev bash' C-m
-  byobu send-keys 'python manage.py collectstatic --noinput' C-m
-  byobu send-keys 'python manage.py migrate' C-m
-  byobu send-keys 'python manage.py create_public' C-m
-  byobu send-keys 'python manage.py create_tenant_superuser -s public --username root --email root@root.root --noinput' C-m
-  byobu send-keys 'python manage.py test_user' C-m
   byobu send-keys 'rsp' C-m
 
   # Remove all containers and volumes from Cashless 1
@@ -103,13 +92,13 @@ start_dev() {
   byobu send-keys 'source $GIT_REPO_PATH/Functional-testing/bash_docker_util.sh' C-m
   if [ $down_before -eq 1 ]; then
     byobu send-keys 'docker compose down -v --remove-orphans' C-m
+    byobu send-keys 'docker compose pull' C-m
+    byobu send-keys 'docker compose up -d' C-m
+    byobu send-keys 'sleep 2' C-m
+    byobu send-keys 'docker compose exec cashless_tests_django bash' C-m
+    byobu send-keys 'python manage.py migrate' C-m
+    byobu send-keys 'python manage.py popdb --test' C-m
   fi
-  byobu send-keys 'docker compose pull' C-m
-  byobu send-keys 'docker compose up -d' C-m
-  byobu send-keys 'sleep 2' C-m
-  byobu send-keys 'docker compose exec cashless_tests_django bash' C-m
-  byobu send-keys 'python manage.py migrate' C-m
-  byobu send-keys 'python manage.py popdb --test' C-m
   byobu send-keys 'rsp80' C-m
 
   # Remove all containers and volumes from Cashless 2
@@ -117,13 +106,13 @@ start_dev() {
   byobu send-keys 'source $GIT_REPO_PATH/Functional-testing/bash_docker_util.sh' C-m
   if [ $down_before -eq 1 ]; then
     byobu send-keys 'docker compose down -v --remove-orphans' C-m
+    byobu send-keys 'docker compose pull' C-m
+    byobu send-keys 'docker compose up -d' C-m
+    byobu send-keys 'sleep 2' C-m
+    byobu send-keys 'docker compose exec cashless_tests2_django bash' C-m
+    byobu send-keys 'python manage.py migrate' C-m
+    byobu send-keys 'python manage.py popdb --test' C-m
   fi
-  byobu send-keys 'docker compose pull' C-m
-  byobu send-keys 'docker compose up -d' C-m
-  byobu send-keys 'sleep 2' C-m
-  byobu send-keys 'docker compose exec cashless_tests2_django bash' C-m
-  byobu send-keys 'python manage.py migrate' C-m
-  byobu send-keys 'python manage.py popdb --test' C-m
   byobu send-keys 'rsp80' C-m
 
   # Return to billetterie and launch celery async python
@@ -173,23 +162,15 @@ while getopts ":shjkrd" option; do
     Help
     exit
     ;;
-  s) # Launch dev session
+  j) # Join session or create if not exist
     down_before=0
-    start_session
-    exit
-    ;;
-  r) # Restart session from scratch
-    kill_session
-    down_before=1
-    start_dev -d
-    exit
-    ;;
-  j) # join session if exists
     join_session
     exit
     ;;
-  k) # kill session if exists
+  s) # Start session from scratch
     kill_session
+    down_before=1
+    start_dev -d
     exit
     ;;
   d) # Down without byobu
