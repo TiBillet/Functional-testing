@@ -101,13 +101,14 @@ start_dev() {
   byobu send-keys 'docker compose up -d' C-m
   byobu send-keys 'sleep 2' C-m
   byobu send-keys 'docker compose exec cashless_tests_django bash' C-m
-  byobu send-keys 'python manage.py migrate' C-m
+  byobu send-keys 'sleep 2' C-m
+  byobu send-keys 'mm' C-m
 
   if [ $down_before -eq 1 ]; then
-    byobu send-keys 'python manage.py popdb --test' C-m
+    byobu send-keys 'mm && python manage.py popdb --test' C-m
   fi
 
-  byobu send-keys 'rsp80' C-m
+  byobu send-keys 'mm && rsp80' C-m
 
   # Remove all containers and volumes from Cashless 2
   byobu split-window -v -c $GIT_REPO_PATH/TibilletCashlessDev/Docker/Tests2/
@@ -121,19 +122,20 @@ start_dev() {
   byobu send-keys 'docker compose up -d' C-m
   byobu send-keys 'sleep 2' C-m
   byobu send-keys 'docker compose exec cashless_tests2_django bash' C-m
-  byobu send-keys 'python manage.py migrate' C-m
+  byobu send-keys 'sleep 2' C-m
+  byobu send-keys 'mm' C-m
 
   if [ $down_before -eq 1 ]; then
-    byobu send-keys 'python manage.py popdb --test' C-m
+    byobu send-keys 'mm && python manage.py popdb --test' C-m
   fi
 
-  byobu send-keys 'rsp80' C-m
+  byobu send-keys 'mm && rsp80' C-m
 
   # Return to billetterie and launch celery async python
   byobu select-pane -t 0
   byobu split-window -h -c $GIT_REPO_PATH/TiBillet/Docker/Development/
   byobu send-keys 'source $GIT_REPO_PATH/Functional-testing/bash_docker_util.sh' C-m
-  byobu send-keys 'sleep 40' C-m
+  byobu send-keys 'sleep 60' C-m
   byobu send-keys 'waitContainer billetterie_celery' C-m
   byobu send-keys 'docker compose exec billetterie_celery_dev bash' C-m
   byobu send-keys 'celery -A TiBillet worker -l INFO' C-m
@@ -142,7 +144,7 @@ start_dev() {
   byobu select-pane -t 2
   byobu split-window -h -c $GIT_REPO_PATH/TibilletCashlessDev/Docker/Tests/
   byobu send-keys 'source $GIT_REPO_PATH/Functional-testing/bash_docker_util.sh' C-m
-  byobu send-keys 'sleep 40' C-m
+  byobu send-keys 'sleep 60' C-m
   byobu send-keys 'waitContainer cashless_tests_celery' C-m
   byobu send-keys 'docker compose exec cashless_tests_celery bash' C-m
   byobu send-keys 'celery -A Cashless worker -l INFO' C-m
@@ -151,7 +153,7 @@ start_dev() {
   byobu select-pane -t 4
   byobu split-window -h -c $GIT_REPO_PATH/TibilletCashlessDev/Docker/Tests2/
   byobu send-keys 'source $GIT_REPO_PATH/Functional-testing/bash_docker_util.sh' C-m
-  byobu send-keys 'sleep 40' C-m
+  byobu send-keys 'sleep 60' C-m
   byobu send-keys 'waitContainer cashless_tests2_celery' C-m
   byobu send-keys 'docker compose exec cashless_tests2_celery bash' C-m
   byobu send-keys 'celery -A Cashless worker -l INFO' C-m
