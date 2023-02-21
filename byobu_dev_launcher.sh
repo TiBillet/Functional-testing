@@ -28,7 +28,7 @@ join_session() {
         byobu attach-session -t TiBillet
     else
         echo "La session TiBillet n'existe pas"
-        printf "Démarrage d'une nouvelle session %s\n" "TiBillet avec les conteuneur existant"
+        printf "Démarrage d'une nouvelle session %s\n" "TiBillet avec les conteneurs existant"
         start_dev
     fi
 }
@@ -76,11 +76,13 @@ start_dev() {
   if [ $down_before -eq 1 ]; then
     byobu send-keys 'docker compose down -v --remove-orphans' C-m
     byobu send-keys 'docker compose pull' C-m
+  fi
     byobu send-keys 'docker compose up -d' C-m
     byobu send-keys 'sleep 2' C-m
     byobu send-keys 'docker compose exec billetterie_django_dev bash' C-m
     byobu send-keys 'python manage.py collectstatic --noinput' C-m
     byobu send-keys 'python manage.py migrate' C-m
+  if [ $down_before -eq 1 ]; then
     byobu send-keys 'python manage.py create_public' C-m
     byobu send-keys 'python manage.py create_tenant_superuser -s public --username root --email root@root.root --noinput' C-m
     byobu send-keys 'python manage.py test_user' C-m
@@ -90,29 +92,41 @@ start_dev() {
   # Remove all containers and volumes from Cashless 1
   byobu split-window -v -c $GIT_REPO_PATH/TibilletCashlessDev/Docker/Tests/
   byobu send-keys 'source $GIT_REPO_PATH/Functional-testing/bash_docker_util.sh' C-m
+
   if [ $down_before -eq 1 ]; then
     byobu send-keys 'docker compose down -v --remove-orphans' C-m
     byobu send-keys 'docker compose pull' C-m
-    byobu send-keys 'docker compose up -d' C-m
-    byobu send-keys 'sleep 2' C-m
-    byobu send-keys 'docker compose exec cashless_tests_django bash' C-m
-    byobu send-keys 'python manage.py migrate' C-m
+  fi
+
+  byobu send-keys 'docker compose up -d' C-m
+  byobu send-keys 'sleep 2' C-m
+  byobu send-keys 'docker compose exec cashless_tests_django bash' C-m
+  byobu send-keys 'python manage.py migrate' C-m
+
+  if [ $down_before -eq 1 ]; then
     byobu send-keys 'python manage.py popdb --test' C-m
   fi
+
   byobu send-keys 'rsp80' C-m
 
   # Remove all containers and volumes from Cashless 2
   byobu split-window -v -c $GIT_REPO_PATH/TibilletCashlessDev/Docker/Tests2/
   byobu send-keys 'source $GIT_REPO_PATH/Functional-testing/bash_docker_util.sh' C-m
+
   if [ $down_before -eq 1 ]; then
     byobu send-keys 'docker compose down -v --remove-orphans' C-m
     byobu send-keys 'docker compose pull' C-m
-    byobu send-keys 'docker compose up -d' C-m
-    byobu send-keys 'sleep 2' C-m
-    byobu send-keys 'docker compose exec cashless_tests2_django bash' C-m
-    byobu send-keys 'python manage.py migrate' C-m
+  fi
+
+  byobu send-keys 'docker compose up -d' C-m
+  byobu send-keys 'sleep 2' C-m
+  byobu send-keys 'docker compose exec cashless_tests2_django bash' C-m
+  byobu send-keys 'python manage.py migrate' C-m
+
+  if [ $down_before -eq 1 ]; then
     byobu send-keys 'python manage.py popdb --test' C-m
   fi
+
   byobu send-keys 'rsp80' C-m
 
   # Return to billetterie and launch celery async python
