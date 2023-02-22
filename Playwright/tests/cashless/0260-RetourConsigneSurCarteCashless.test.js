@@ -7,7 +7,7 @@ import {
   creditCardCashless,
   goPointSale,
   emulateTagIdNfc
-} from '../mesModules/commun.js'
+} from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
 test.use({viewport: {width: 600, height: 800}})

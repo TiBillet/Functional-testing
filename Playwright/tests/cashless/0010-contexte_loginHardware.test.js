@@ -1,5 +1,5 @@
 import {test} from '@playwright/test'
-import {userAgentString} from '../mesModules/commun.js'
+import {userAgentString} from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
 test.use({viewport: {width: 1024, height: 800}})

@@ -7,7 +7,7 @@ import {
   articlesListNoVisible,
   checkAlreadyPaidBill,
   confirmation
-} from '../mesModules/commun.js'
+} from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
 test.use({viewport: {width: 1024, height: 800}})

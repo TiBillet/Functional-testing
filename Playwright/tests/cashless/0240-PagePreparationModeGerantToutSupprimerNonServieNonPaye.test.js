@@ -1,5 +1,5 @@
 import {test, expect} from '@playwright/test'
-import {userAgentString, connection, managerMode, goTableOrder, bigToFloat} from '../mesModules/commun.js'
+import {userAgentString, connection, managerMode, goTableOrder, bigToFloat} from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
 test.use({viewport: {width: 1024, height: 800}})
