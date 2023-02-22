@@ -1,8 +1,8 @@
 # appareil pi ou mobile
-HOSTNAME
-TOKEN_SOCKET
-PASSWORD
-FRONT
+pi_HOSTNAME
+pi_TOKEN_SOCKET
+pi_PASSWORD
+pi_FRONT
 
 # tests achat avec ou sans crédit, etat carte
 DEMO_TAGID_CLIENT1
@@ -13,11 +13,19 @@ DEMO_TAGID_CM
 
 # test biletterie
 URL_BILLETTERIE
+root_user_BILLETTERIE1
+root_password_BILLETTERIE1
+
 
 #tests CAHSLESS1
 URL_CAHSLESS1
 KEY_API_CAHSLESS1
+root_user_CAHSLESS1
+root_password_CAHSLESS1
+
 
 #tests CAHSLESS2
 URL_CAHSLESS2
 KEY_API_CAHSLESS2
+root_user_CAHSLESS2
+root_password_CAHSLESS2
