@@ -1,0 +1,57 @@
+# Playwright
+
+## Installer les modules de playwright (à la racine de celui_ci)
+```
+npm i
+npx playwright install
+```
+
+## Créer un fichier d'environnement à la racine de playwright
+.env:
+```
+STAFF_LOGIN=userStaff
+STAFF_PWD=mdpStaff
+HOSTNAME=phenix
+PASSWORD=mdpPhenix
+TOKEN_SOCKET=xxjhgshjhjkshgeg55djkshhs
+MODE_NFC=NFCLO
+FRONT=FOR
+DEMO_TAGID_CLIENT1='93BD3684'
+DEMO_TAGID_CLIENT2='41726643'
+```
+
+## Lancer les tests
+```
+npx playwright test --headed
+npx playwright test --reporter=line
+```
+
+## Lancer un test
+```
+npx playwright test 0010-contexte_loginHardware.test.js
+```
+
+## Voir le raport
+```
+npx playwright show-report
+```
+
+## Ignorer des tests (.skip)
+- test.describe.skip   
+- test.skip
+
+## Ne faire qu'un test (.only)
+test.describe.only
+
+## divers
+### Django pop db file
+.../DjangoFiles/APIcashless/management/commands/popdb.py
+
+## Attention
+Les tests se lancent sur une db juste "poper" avec test.sh .
+Les tests "playwright" ne vérifient pas, pour le moment, un contexte déjà opérationel.
+
+## memo
+en mode mobile, tester:
+- le bouton "Addition" (pas visible en mode bureau)
+
