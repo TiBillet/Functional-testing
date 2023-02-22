@@ -92,43 +92,35 @@ start_dev() {
   # Remove all containers and volumes from Cashless 1
   byobu split-window -v -c $GIT_REPO_PATH/TibilletCashlessDev/Docker/Tests/
   byobu send-keys 'source $GIT_REPO_PATH/Functional-testing/bash_docker_util.sh' C-m
-
   if [ $down_before -eq 1 ]; then
     byobu send-keys 'docker compose down -v --remove-orphans' C-m
     byobu send-keys 'docker compose pull' C-m
   fi
-
   byobu send-keys 'docker compose up -d' C-m
   byobu send-keys 'sleep 2' C-m
   byobu send-keys 'docker compose exec cashless_tests_django bash' C-m
   byobu send-keys 'sleep 2' C-m
   byobu send-keys 'mm' C-m
-
   if [ $down_before -eq 1 ]; then
     byobu send-keys 'mm && python manage.py popdb --test' C-m
   fi
-
   byobu send-keys 'mm && rsp80' C-m
 
   # Remove all containers and volumes from Cashless 2
   byobu split-window -v -c $GIT_REPO_PATH/TibilletCashlessDev/Docker/Tests2/
   byobu send-keys 'source $GIT_REPO_PATH/Functional-testing/bash_docker_util.sh' C-m
-
   if [ $down_before -eq 1 ]; then
     byobu send-keys 'docker compose down -v --remove-orphans' C-m
     byobu send-keys 'docker compose pull' C-m
   fi
-
   byobu send-keys 'docker compose up -d' C-m
   byobu send-keys 'sleep 2' C-m
   byobu send-keys 'docker compose exec cashless_tests2_django bash' C-m
   byobu send-keys 'sleep 2' C-m
   byobu send-keys 'mm' C-m
-
   if [ $down_before -eq 1 ]; then
     byobu send-keys 'mm && python manage.py popdb --test' C-m
   fi
-
   byobu send-keys 'mm && rsp80' C-m
 
   # Return to billetterie and launch celery async python
