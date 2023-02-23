@@ -1,4 +1,5 @@
 {
+  "domain": "tibillet.localhost",
   "device": {
     "hostname": "phenix",
     "tokenSocket": "$a;b2yuM5454@4!cd",
@@ -35,28 +36,27 @@
   ],
   "ticketing": {
     "meta": {
-      "url": "https://agenda.tibillet.localhost/",
+      "subDomain": "agenda",
       "rootUser": "root@root.root",
       "rootPassword": "root",
       "adminUser": "????????",
       "adminPassword": "????????"
     },
     "root": {
-      "url": "https://www.tibillet.localhost/",
+      "subDomain": "www",
       "rootUser": "root@root.root",
       "rootPassword": "root",
       "adminUser": "????????",
       "adminPassword": "????????"
     },
     "artiste1": {
-      "url": "https://ziskakan.tibillet.localhost/",
+      "subDomain": "ziskakan",
       "rootUser": "root@root.root",
       "rootPassword": "root",
       "adminUser": "????????",
       "adminPassword": "????????"
     },
     "demo": {
-      "url": "https://demo.tibillet.localhost/",
       "rootUser": "root@root.root",
       "rootPassword": "root",
       "adminUser": "????????",
@@ -64,7 +64,7 @@
       "cashless": "demo"
     },
     "billetistan": {
-      "url": "https://billetistan.tibillet.localhost/",
+      "subDomain": "billetistan",
       "rootUser": "root@root.root",
       "rootPassword": "root",
       "adminUser": "????????",
@@ -74,7 +74,7 @@
   },
   "cashlessServer": {
     "demo": {
-      "url": "https://test.cashless.tibillet.localhost/",
+      "subDomain": "test.cashless",
       "keyApi": "",
       "rootUser": "RootTest",
       "rootPassword": "zohR5roov6vaeF2thunoo2Ooph8Per",
@@ -82,7 +82,7 @@
       "adminPassword": "mi5Iechi"
     },
     "billetistan": {
-      "url": "https://billetistan.cashless.tibillet.localhost/",
+      "subDomain": "billetistan.cashless",
       "keyApi": "",
       "rootUser": "RootTest",
       "rootPassword": "zohR5roov6vaeF2thunoo2Ooph8Per",

@@ -1,4 +1,5 @@
 import {test, expect, request} from '@playwright/test'
+import moment from 'moment'
 import Big from '../mesModules/big.js'
 import * as fs from 'node:fs'
 
@@ -25,6 +26,10 @@ export const tagId = {
 }
 
 // ---- billetterie ----
+export function getTenantUrl(subDomain) {
+  return  'https://' + env.ticketing[subDomain].subDomain + '.' + env.domain
+}
+
 /**
  * Retourne la date d'aujourd'hui + un nombre aléatoire(1 à 365) de jours
  * @returns {moment.Moment}
@@ -44,7 +49,7 @@ export function randomDate() {
 export const getRootJWT = async function () {
   return await test.step('GeT Root JWT Token', async () => {
     const context = await request.newContext({
-      baseURL: env.ticketing.root.url,
+      baseURL: getTenantUrl('root'),
       ignoreHTTPSErrors: true
     })
 

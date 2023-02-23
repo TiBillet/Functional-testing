@@ -1,5 +1,5 @@
 import {expect, test} from '@playwright/test'
-import {getEnv, getRootJWT, randomDate, initData, getData, updateData} from '../../mesModules/commun.js'
+import {getEnv, getTenantUrl, getRootJWT, randomDate, initData, getData, updateData} from '../../mesModules/commun.js'
 // commun.js avant dataPeuplementInit.json, pour les variables d'environnement
 
 const env = getEnv()
@@ -26,9 +26,9 @@ test.describe.only('root - Peuplement initial de la db "billetterie".', () => {
     const places = dataDb.filter(obj => obj.typeData === 'place')
     for (const placeR of places) {
       // ajout, donc modification
-      placeR.value['stripe_connect_account'] = process.env.ID_STRIPE
+      placeR.value['stripe_connect_account'] = env.stripeAccountId
       console.log('Création du lieu ', placeR.value.organisation)
-      response = await request.post(process.env.URL_META + '/api/place/', {
+      response = await request.post(getTenantUrl('meta') + '/api/place/', {
         headers: {
           "Content-Type": "application/json"
         },
@@ -40,14 +40,14 @@ test.describe.only('root - Peuplement initial de la db "billetterie".', () => {
     updateData(dataDb)
   })
 
-  test.skip('Create artist', async ({request}) => {
+  test('Create artist', async ({request}) => {
     const dataDb = getData()
     let response
     const artists = dataDb.filter(obj => obj.typeData === 'artist')
     for (const artistR of artists) {
-      artistR.value['stripe_connect_account'] = process.env.ID_STRIPE
+      artistR.value['stripe_connect_account'] = env.stripeAccountId
       console.log('Création artiste', artistR.value.organisation)
-      response = await request.post(process.env.URL_META + '/api/artist/', {
+      response = await request.post(getTenantUrl('meta') + '/api/artist/', {
         headers: {
           "Content-Type": "application/json"
         },
@@ -62,13 +62,13 @@ test.describe.only('root - Peuplement initial de la db "billetterie".', () => {
     updateData(dataDb)
   })
 
-  test.skip('Create product', async ({request}) => {
+  test('Create product', async ({request}) => {
     const dataDb = getData()
     let response
     const products = dataDb.filter(obj => obj.typeData === 'product')
     for (const productR of products) {
       console.log('Création produit', productR.value.name)
-      const url = `https://${productR.place}.${process.env.DOMAIN}/api/products/`
+      const url = `https://${productR.place}.${env.domain}/api/products/`
       response = await request.post(url, {
         headers: {
           "Content-Type": "application/json",
@@ -84,14 +84,14 @@ test.describe.only('root - Peuplement initial de la db "billetterie".', () => {
     updateData(dataDb)
   })
 
-  test.skip('Create price', async ({request}) => {
+  test('Create price', async ({request}) => {
     const dataDb = getData()
     let response
     const products = dataDb.filter(obj => obj.typeData === 'product')
     const prices = dataDb.filter(obj => obj.typeData === 'price')
     for (const priceR of prices) {
       console.log('Création du prix', priceR.value.name)
-      const url = `https://${priceR.place}.${process.env.DOMAIN}/api/prices/`
+      const url = `https://${priceR.place}.${env.domain}/api/prices/`
       const uuidProduct = products.find(obj => obj.value.name === priceR.productName).value.uuid
       priceR.value['product'] = uuidProduct
       // console.log('url =', url)
@@ -110,7 +110,7 @@ test.describe.only('root - Peuplement initial de la db "billetterie".', () => {
   })
 
 
-  test.skip('Events Create with OPT ART - Ziskakan', async ({request}) => {
+  test('Events Create with OPT ART - Ziskakan', async ({request}) => {
     const dataDb = getData()
     let response
     const artists = dataDb.filter(obj => obj.typeData === 'artist')
@@ -118,7 +118,7 @@ test.describe.only('root - Peuplement initial de la db "billetterie".', () => {
     const events = dataDb.filter(obj => obj.typeData === 'event')
     for (const eventR of events) {
       console.log("Création d'un évènement.")
-      const url = `https://${eventR.place}.${process.env.DOMAIN}/api/events/`
+      const url = `https://${eventR.place}.${env.domain}/api/events/`
       console.log('url =', url)
       // init
       let dataEvent = {
@@ -152,7 +152,7 @@ test.describe.only('root - Peuplement initial de la db "billetterie".', () => {
       // TODO: options_radio
       dataEvent['options_radio'] = []
 
-      dataEvent['stripe_connect_account'] = process.env.ID_STRIPE
+      dataEvent['stripe_connect_account'] = env.stripeAccountId
 
       // console.log('dataEvent =', dataEvent)
 

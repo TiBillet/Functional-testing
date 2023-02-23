@@ -102,6 +102,16 @@
     "typeData": "product",
     "place": "demo",
     "value": {
+      "name": "Billet",
+      "publish": true,
+      "img_url": "https://picsum.photos/600/400.jpg",
+      "categorie_article": "B"
+    }
+  },
+  {
+    "typeData": "product",
+    "place": "demo",
+    "value": {
       "name": "Tshirt",
       "publish": true,
       "img_url": "https://picsum.photos/600/400.jpg",
@@ -118,17 +128,6 @@
       "vat": "NA",
       "max_per_user": "10",
       "stock": "10"
-    }
-  },
-  {
-    "typeData": "price",
-    "productName": "Billet",
-    "place": "demo",
-    "value": {
-      "name": "Plein Tarif",
-      "prix": "10",
-      "vat": "NA",
-      "max_per_user": "10"
     }
   },
   {
