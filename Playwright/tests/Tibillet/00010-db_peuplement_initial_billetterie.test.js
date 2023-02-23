@@ -1,13 +1,14 @@
 import {expect, test} from '@playwright/test'
-import {getRootJWT, randomDate, initData, getData, updateData} from '../mesModules/commun.js'
+import {getEnv, getRootJWT, randomDate, initData, getData, updateData} from '../../mesModules/commun.js'
 // commun.js avant dataPeuplementInit.json, pour les variables d'environnement
 
+const env = getEnv()
 const email = process.env.TEST_MAIL
 let tokenBilletterie
 
-
-test.describe('Peuplement initial de la db "billetterie".', () => {
+test.describe.only('root - Peuplement initial de la db "billetterie".', () => {
   test('Get root token', async ({request}) => {
+
     tokenBilletterie = await getRootJWT()
     console.log('tokenBilletterie =', tokenBilletterie)
 
@@ -18,7 +19,7 @@ test.describe('Peuplement initial de la db "billetterie".', () => {
     await initData()
   })
 
-  test('Create places', async ({request}) => {
+  test.skip('Create places', async ({request}) => {
     const dataDb = getData()
     let response
     const places = dataDb.filter(obj => obj.typeData === 'place')
@@ -38,7 +39,7 @@ test.describe('Peuplement initial de la db "billetterie".', () => {
     updateData(dataDb)
   })
 
-  test('Create artist', async ({request}) => {
+  test.skip('Create artist', async ({request}) => {
     const dataDb = getData()
     let response
     const artists = dataDb.filter(obj => obj.typeData === 'artist')
@@ -60,7 +61,7 @@ test.describe('Peuplement initial de la db "billetterie".', () => {
     updateData(dataDb)
   })
 
-  test('Create product', async ({request}) => {
+  test.skip('Create product', async ({request}) => {
     const dataDb = getData()
     let response
     const products = dataDb.filter(obj => obj.typeData === 'product')
@@ -82,7 +83,7 @@ test.describe('Peuplement initial de la db "billetterie".', () => {
     updateData(dataDb)
   })
 
-  test('Create price', async ({request}) => {
+  test.skip('Create price', async ({request}) => {
     const dataDb = getData()
     let response
     const products = dataDb.filter(obj => obj.typeData === 'product')
@@ -108,7 +109,7 @@ test.describe('Peuplement initial de la db "billetterie".', () => {
   })
 
 
-  test('Events Create with OPT ART - Ziskakan', async ({request}) => {
+  test.skip('Events Create with OPT ART - Ziskakan', async ({request}) => {
     const dataDb = getData()
     let response
     const artists = dataDb.filter(obj => obj.typeData === 'artist')

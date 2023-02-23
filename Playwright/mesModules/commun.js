@@ -1,22 +1,121 @@
-import {test, expect} from '@playwright/test'
+import {test, expect, request} from '@playwright/test'
 import Big from '../mesModules/big.js'
-import * as dotenv from 'dotenv'
+import * as fs from 'node:fs'
 
-// ajout des variables d'environnement provenant de .env
-dotenv.config({ path: '../.env'})
+/**
+ * Chargement de env.json
+ */
+export function getEnv() {
+  const dataRaw = fs.readFileSync('./env.json', 'utf8')
+  return JSON.parse(dataRaw)
+}
 
-export const userAgentString = `{"hostname": "${process.env.HOSTNAME}", "token": "${process.env.TOKEN_SOCKET}", "password": "${process.env.PASSWORD}", "modeNfc": "${process.env.MODE_NFC}", "front": "${process.env.FRONT}", "ip": "192.168.1.4"}`
+const env = getEnv()
+
+// certificat https
+test.use({ignoreHTTPSErrors: true})
+
+export const userAgentString = `{"hostname": "${env.device.hostname}", "token": "${env.device.tokenSocket}", "password": "${env.device.password}", "modeNfc": "NFCSI", "front": "${env.device.front}", "ip": "192.168.1.4"}`
+
 export const tagId = {
-  carteTest: process.env.DEMO_TAGID_CLIENT1,
-  carteRobocop: process.env.DEMO_TAGID_CLIENT2,
-  carteMaitresse: process.env.DEMO_TAGID_CM,
+  carteTest: env.cards.find(obj => obj.name === 'client1').tagId,
+  carteRobocop: env.cards.find(obj => obj.name === 'client2').tagId,
+  carteMaitresse: env.cards.find(obj => obj.name === 'primaryCard').tagId,
   carteInconnue: 'CARTINC0'
 }
 
+// ---- billetterie ----
+/**
+ * Retourne la date d'aujourd'hui + un nombre aléatoire(1 à 365) de jours
+ * @returns {moment.Moment}
+ */
+export function randomDate() {
+  const dateR = moment()
+  const randomNbDays = (Math.random() * 365) + 1
+  dateR.add(randomNbDays, 'days')
+  dateR.format("YYYY-MM-DD")
+  return dateR
+}
+
+/**
+ * Obtenir le root token
+ * @returns {string}
+ */
+export const getRootJWT = async function () {
+  return await test.step('GeT Root JWT Token', async () => {
+    const context = await request.newContext({
+      baseURL: env.ticketing.root.url,
+      ignoreHTTPSErrors: true
+    })
+
+    const options = {
+      headers: {
+        "Content-Type": "application/json"
+      },
+      data: {
+        username: env.ticketing.root.rootUser,
+        password: env.ticketing.root.rootPassword
+      }
+    }
+    // console.log('options =', options)
+
+    const response = await context.post('/api/user/token/', options)
+    // console.log('response =', response)
+    const retour = await response.json()
+    expect(response.ok()).toBeTruthy()
+    return retour.access
+  })
+}
+
+/**
+ * Reset dataPeuplementTempo.json avec les données de dataPeuplementInit.json
+ * @returns {Promise<*[]>}
+ */
+export async function initData() {
+  try {
+    const data = fs.readFileSync('./mesModules/dataPeuplementInit.json', 'utf8')
+    fs.writeFileSync('./mesModules/dataPeuplementTempo.json', data, 'utf8')
+    console.log('Init dataPeuplement.')
+  } catch (err) {
+    console.log(`Error init dataPeuplement: ${err}`)
+    return []
+  }
+
+}
+
+/**
+ * Données pour le peuplement des billetteriue et la synchronisation des tests
+ * @returns {*[]|any}
+ */
+export function getData() {
+  try {
+    const data = fs.readFileSync('./mesModules/dataPeuplementTempo.json', 'utf8')
+    return JSON.parse(data)
+  } catch (err) {
+    console.log(`Error reading file from disk: ${err}`)
+    return []
+  }
+}
+
+/**
+ * Maj des données de peuplement lors des tests
+ * @param dataR
+ */
+export function updateData(dataR) {
+  try {
+    const data = JSON.stringify(dataR, null, 4)
+    fs.writeFileSync('./mesModules/dataPeuplementTempo.json', data, 'utf8')
+  } catch (err) {
+    console.log(`Error writing file: ${err}`)
+  }
+}
+
+// ---- cashless ----
 // nfc
 export async function updateNfc(page) {
   // ajout de la fonction émuler lecteur carte nfc
   await page.evaluate(async () => {
+    // stop socket.io
     SOCKET.close()
 
     // Etendre la class rfid afin d'émuler la lecture d'une carte
