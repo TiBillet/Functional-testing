@@ -19,7 +19,8 @@ test.describe.only('root - Peuplement initial de la db "billetterie".', () => {
     await initData()
   })
 
-  test.skip('Create places', async ({request}) => {
+  test('Create places', async ({request}) => {
+    // provenant de dataPeuplementTempo.json
     const dataDb = getData()
     let response
     const places = dataDb.filter(obj => obj.typeData === 'place')
