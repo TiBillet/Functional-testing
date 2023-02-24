@@ -128,7 +128,7 @@ start_dev() {
   byobu split-window -v -c $GIT_REPO_PATH/Functional-testing/Playwright/
   byobu send-keys 'npm i' C-m
   # TODO: assert config OK
-  byobu send-keys '#npx playwright test tests/Tibillet/ --headed' C-m
+  byobu send-keys '#npx playwright test tests/billetterie_jwt/001' C-m
 
   # Return to billetterie and launch celery async python
   byobu select-pane -t 0

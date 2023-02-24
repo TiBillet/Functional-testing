@@ -116,8 +116,20 @@
       "name": "Demi Tarif",
       "prix": "5",
       "vat": "NA",
-      "max_per_user": "10",
+      "max_per_user": "4",
       "stock": "10"
+    }
+  },
+  {
+    "typeData": "price",
+    "productName": "Billet",
+    "place": "demo",
+    "value": {
+      "name": "Plein Tarif",
+      "prix": "10",
+      "vat": "NA",
+      "max_per_user": "10",
+      "stock": "100"
     }
   },
   {
@@ -200,6 +212,34 @@
     }
   },
   {
+    "typeData": "option",
+    "place": "demo",
+    "value": {
+      "name": "Balcon"
+    }
+  },
+  {
+    "typeData": "option",
+    "place": "demo",
+    "value": {
+      "name": "Fosse"
+    }
+  },
+  {
+    "typeData": "option",
+    "place": "demo",
+    "value": {
+      "name": "Vegétarien"
+    }
+  },
+  {
+    "typeData": "option",
+    "place": "demo",
+    "value": {
+      "name": "Vegan"
+    }
+  },
+  {
     "typeData": "event",
     "place": "demo",
     "artists": [
@@ -221,8 +261,20 @@
     "short_description": "Courte description",
     "long_description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ipsum lectus, ultrices vel placerat et, finibus ultricies dolor. Integer facilisis fermentum placerat. Nam malesuada fermentum nunc ac consectetur. Donec velit tortor, feugiat in euismod eu, semper blandit lacus. Nunc ultricies lorem sed libero bibendum, id vestibulum massa lacinia. In hac habitasse platea dictumst. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam interdum lacinia metus, nec rutrum diam congue ut. Phasellus accumsan at leo ac eleifend. Phasellus cursus vitae tortor vestibulum faucibus. Pellentesque dictum libero ut tellus tristique condimentum. ",
     "products": [
-      "Billet",
-      "Abonnement AMAP"
+      "Billet"
+    ]
+  },
+  {
+    "typeData": "event",
+    "place": "demo",
+    "short_description": "Scène ouverte !",
+    "long_description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ipsum lectus, ultrices vel placerat et, finibus ultricies dolor. Integer facilisis fermentum placerat. Nam malesuada fermentum nunc ac consectetur. Donec velit tortor, feugiat in euismod eu, semper blandit lacus. Nunc ultricies lorem sed libero bibendum, id vestibulum massa lacinia. In hac habitasse platea dictumst. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam interdum lacinia metus, nec rutrum diam congue ut. Phasellus accumsan at leo ac eleifend. Phasellus cursus vitae tortor vestibulum faucibus. Pellentesque dictum libero ut tellus tristique condimentum. ",
+    "options_checkbox": [
+      "Vegétarien",
+      "Vegan"
+    ],
+    "options_radio": [
+      "Fosse"
     ]
   }
 ]
