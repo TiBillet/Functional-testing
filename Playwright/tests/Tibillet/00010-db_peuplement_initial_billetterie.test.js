@@ -67,7 +67,7 @@ test.describe.only('root - Peuplement initial de la db "billetterie".', () => {
     let response
     const products = dataDb.filter(obj => obj.typeData === 'product')
     for (const productR of products) {
-      console.log('Création produit', productR.value.name)
+      console.log('Création produit', productR.value.name, productR.place)
       const url = `https://${productR.place}.${env.domain}/api/products/`
       response = await request.post(url, {
         headers: {

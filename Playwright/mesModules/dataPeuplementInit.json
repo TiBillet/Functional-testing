@@ -3,7 +3,7 @@
     "typeData": "place",
     "value": {
       "organisation": "Demo",
-      "short_description": "Les scène oniriques du Billetistan",
+      "short_description": "La scène oniriques du Billetistan",
       "long_description": "Ah ben ça alors ! Un nouveau lieu dans un espace virtuel !",
       "img_url": "https://picsum.photos/1920/1080.jpg",
       "logo_url": "https://picsum.photos/300/300.jpg",
@@ -86,16 +86,6 @@
       "img_url": "https://picsum.photos/1920/1080",
       "categorie_article": "A",
       "short_description": "Association pour le maintient d'une activité paysanne"
-    }
-  },
-  {
-    "typeData": "product",
-    "place": "demo",
-    "value": {
-      "name": "Billet",
-      "publish": true,
-      "img_url": "https://picsum.photos/600/400.jpg",
-      "categorie_article": "B"
     }
   },
   {

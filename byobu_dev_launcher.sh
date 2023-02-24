@@ -13,6 +13,7 @@ Help() {
   echo "options:"
   echo "-h     Print this Help."
   echo "-s     Start dev environement from scratch"
+  echo "-t     Start dev environement from scratch and launch test"
   echo "-j     Join dev environement"
   echo "-d     Down volumes and container without byobu"
   echo "-t     launch test"
@@ -123,6 +124,12 @@ start_dev() {
   fi
   byobu send-keys 'mm && rsp80' C-m
 
+  # Ajoute une fenêtre pour lancer les tests
+  byobu split-window -v -c $GIT_REPO_PATH/Functional-testing/Playwright/
+  byobu send-keys 'npm i' C-m
+  # TODO: assert config OK
+  byobu send-keys '#npx playwright test tests/Tibillet/ --headed' C-m
+
   # Return to billetterie and launch celery async python
   byobu select-pane -t 0
   byobu split-window -h -c $GIT_REPO_PATH/TiBillet/Docker/Development/
@@ -178,11 +185,18 @@ while getopts ":shjkrd" option; do
   s) # Start session from scratch
     kill_session
     down_before=1
-    start_dev -d
+    start_dev
     exit
     ;;
   d) # Down without byobu
     down_dev
+    exit
+    ;;
+  t) # Test
+    kill_session
+    down_before=1
+    test=1
+    start_dev
     exit
     ;;
   \?) # Invalid option
