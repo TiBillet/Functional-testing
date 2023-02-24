@@ -32,9 +32,17 @@ test.describe.only('On créé des évents', () => {
                 long_description: eventR.long_description,
             }
 
+            if (eventR.name !== undefined) {
+                dataEvent['name'] = eventR.name
+            }
+
+            if (eventR.img_url !== undefined) {
+                dataEvent['img_url'] = eventR.img_url
+            }
+
             // les artistes
-            dataEvent['artists'] = []
             if (eventR.artists !== undefined) {
+            dataEvent['artists'] = []
                 for (const artist of eventR.artists) {
                     // console.log('artist =', artist)
                     const uuidArtist = artists.find(obj => obj.value.organisation === artist).value.uuid
@@ -47,8 +55,8 @@ test.describe.only('On créé des évents', () => {
             }
 
             // les produits
-            dataEvent['products'] = []
             if (eventR.products !== undefined) {
+            dataEvent['products'] = []
                 for (const product of eventR.products) {
                     // console.log('product =', product)
                     const uuidProduct = products.find(obj => obj.value.name === product).value.uuid
@@ -57,34 +65,30 @@ test.describe.only('On créé des évents', () => {
             }
 
             // les options options_checkbox
-            dataEvent['options_checkbox'] = []
-            if (eventR.options_checkbox !== undefined) {
-                for (const options_checkbox of eventR.options_checkbox) {
-                    // console.log('options_checkbox =', options_checkbox)
-                    const uuidOption = options.find(obj => obj.value.name === options_checkbox).value.uuid
-                    dataEvent.options_checkbox.push(uuidOption)
-                }
-
-            }
+            // if (eventR.options_checkbox !== undefined) {
+            // dataEvent['options_checkbox'] = []
+            //     for (const options_checkbox of eventR.options_checkbox) {
+            //         // console.log('options_checkbox =', options_checkbox)
+            //         const uuidOption = options.find(obj => obj.value.name === options_checkbox).value.uuid
+            //         dataEvent.options_checkbox.push(uuidOption)
+            //     }
+            //
+            // }
 
             // les options options_radio
-            dataEvent['options_radio'] = []
-            if (eventR.options_radio !== undefined) {
-                for (const options_radio of eventR.options_radio) {
-                    // console.log('options_radio =', options_radio)
-                    const uuidOption = options.find(obj => obj.value.name === options_radio).value.uuid
-                    dataEvent.options_radio.push(uuidOption)
-                }
-            }
+            // dataEvent['options_radio'] = []
+            // if (eventR.options_radio !== undefined) {
+            //     for (const options_radio of eventR.options_radio) {
+            //         // console.log('options_radio =', options_radio)
+            //         const uuidOption = options.find(obj => obj.value.name === options_radio).value.uuid
+            //         dataEvent.options_radio.push(uuidOption)
+            //     }
+            // }
 
-            // TODO: options_checkbox
-            dataEvent['options_checkbox'] = []
-            // TODO: options_radio
-            dataEvent['options_radio'] = []
 
             dataEvent['stripe_connect_account'] = env.stripeAccountId
 
-            // console.log('dataEvent =', dataEvent)
+            console.log('dataEvent =', dataEvent)
 
             response = await request.post(url, {
                 headers: {
@@ -93,6 +97,7 @@ test.describe.only('On créé des évents', () => {
                 },
                 data: dataEvent
             })
+            console.log("response response.ok() : ", response.ok())
             expect(response.ok()).toBeTruthy()
         }
     })

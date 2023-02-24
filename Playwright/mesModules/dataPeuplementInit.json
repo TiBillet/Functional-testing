@@ -267,7 +267,24 @@
   {
     "typeData": "event",
     "place": "demo",
-    "short_description": "Scène ouverte !",
+    "name": "Scène ouverte",
+    "short_description": "Viens jouer avec tes potes !",
+    "img_url": "https://picsum.photos/1920/1080",
+    "long_description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ipsum lectus, ultrices vel placerat et, finibus ultricies dolor. Integer facilisis fermentum placerat. Nam malesuada fermentum nunc ac consectetur. Donec velit tortor, feugiat in euismod eu, semper blandit lacus. Nunc ultricies lorem sed libero bibendum, id vestibulum massa lacinia. In hac habitasse platea dictumst. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam interdum lacinia metus, nec rutrum diam congue ut. Phasellus accumsan at leo ac eleifend. Phasellus cursus vitae tortor vestibulum faucibus. Pellentesque dictum libero ut tellus tristique condimentum. ",
+    "options_checkbox": [
+      "Vegétarien",
+      "Vegan"
+    ],
+    "options_radio": [
+      "Fosse"
+    ]
+  },
+  {
+    "typeData": "event",
+    "place": "demo",
+    "name": "Scène ouverte",
+    "short_description": "Viens jouer avec tes potes !",
+    "img_url": "https://picsum.photos/1920/1080",
     "long_description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ipsum lectus, ultrices vel placerat et, finibus ultricies dolor. Integer facilisis fermentum placerat. Nam malesuada fermentum nunc ac consectetur. Donec velit tortor, feugiat in euismod eu, semper blandit lacus. Nunc ultricies lorem sed libero bibendum, id vestibulum massa lacinia. In hac habitasse platea dictumst. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam interdum lacinia metus, nec rutrum diam congue ut. Phasellus accumsan at leo ac eleifend. Phasellus cursus vitae tortor vestibulum faucibus. Pellentesque dictum libero ut tellus tristique condimentum. ",
     "options_checkbox": [
       "Vegétarien",
