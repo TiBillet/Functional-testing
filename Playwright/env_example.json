@@ -35,38 +35,32 @@
     }
   ],
   "ticketing": {
-    "meta": {
-      "subDomain": "agenda",
-      "rootUser": "root@root.root",
-      "rootPassword": "root",
-      "adminUser": "????????",
-      "adminPassword": "????????"
-    },
     "root": {
       "subDomain": "www",
       "rootUser": "root@root.root",
       "rootPassword": "root",
       "adminUser": "????????",
+      "adminPassword": "????????",
+      "iplan": "172.21.0.1"
+    },
+    "meta": {
+      "subDomain": "agenda",
+      "adminUser": "????????",
       "adminPassword": "????????"
     },
     "artiste1": {
       "subDomain": "ziskakan",
-      "rootUser": "root@root.root",
-      "rootPassword": "root",
       "adminUser": "????????",
       "adminPassword": "????????"
     },
     "demo": {
-      "rootUser": "root@root.root",
-      "rootPassword": "root",
+      "subDomain": "demo",
       "adminUser": "????????",
       "adminPassword": "????????",
       "cashless": "demo"
     },
     "billetistan": {
       "subDomain": "billetistan",
-      "rootUser": "root@root.root",
-      "rootPassword": "root",
       "adminUser": "????????",
       "adminPassword": "????????",
       "cashless": "billetistan"
@@ -74,7 +68,7 @@
   },
   "cashlessServer": {
     "demo": {
-      "subDomain": "test.cashless",
+      "subDomain": "demo.cashless",
       "keyApi": "",
       "rootUser": "RootTest",
       "rootPassword": "zohR5roov6vaeF2thunoo2Ooph8Per",
