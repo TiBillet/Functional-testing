@@ -8,12 +8,9 @@ let tokenBilletterie
 
 test.describe.only('root - Peuplement initial de la db "billetterie".', () => {
     test('Get root token', async ({request}) => {
-
         tokenBilletterie = await getRootJWT()
         console.log('tokenBilletterie =', tokenBilletterie)
-
     })
-
 
     test('Create places', async ({request}) => {
         // provenant de dataPeuplementTempo.json
@@ -23,7 +20,10 @@ test.describe.only('root - Peuplement initial de la db "billetterie".', () => {
         for (const placeR of places) {
             // ajout, donc modification
             placeR.value['stripe_connect_account'] = env.stripeAccountId
+            placeR.value['server_cashless'] = env.ticketing[placeR.value['organisation'].toLowerCase()].server_cashless
+            placeR.value['key_cashless'] = env.ticketing[placeR.value['organisation'].toLowerCase()].key_cashless
             console.log('Création du lieu ', placeR.value.organisation)
+            console.log('    data : ', placeR.value)
             response = await request.post(getTenantUrl('meta') + '/api/place/', {
                 headers: {
                     "Content-Type": "application/json"

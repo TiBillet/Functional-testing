@@ -57,19 +57,22 @@
       "subDomain": "demo",
       "adminUser": "????????",
       "adminPassword": "????????",
-      "cashless": "demo"
+      "cashless": "demo",
+      "server_cashless": "https://demo.cashless.tibillet.localhost",
+      "key_cashless": ""
     },
     "billetistan": {
       "subDomain": "billetistan",
       "adminUser": "????????",
       "adminPassword": "????????",
-      "cashless": "billetistan"
+      "cashless": "billetistan",
+      "server_cashless": "https://billetistan.cashless.tibillet.localhost",
+      "key_cashless": ""
     }
   },
   "cashlessServer": {
     "demo": {
       "subDomain": "demo.cashless",
-      "keyApi": "",
       "rootUser": "RootTest",
       "rootPassword": "zohR5roov6vaeF2thunoo2Ooph8Per",
       "adminUser": "TestAdmin",
@@ -77,13 +80,12 @@
     },
     "billetistan": {
       "subDomain": "billetistan.cashless",
-      "keyApi": "",
       "rootUser": "RootTest",
       "rootPassword": "zohR5roov6vaeF2thunoo2Ooph8Per",
       "adminUser": "TestAdmin",
       "adminPassword": "mi5Iechi"
     }
   },
-  "emailClientReservation": "????????",
-  "stripeAccountId": "??????????"
+  "emailClientReservation": "jturbeaux+test@pm.me",
+  "stripeAccountId": ""
 }
