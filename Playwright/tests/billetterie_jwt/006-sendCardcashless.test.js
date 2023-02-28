@@ -7,6 +7,5 @@ const email = process.env.TEST_MAIL
 let tokenBilletterie
 
 test.describe('on envoie les cartes cashless !', () => {
-
-
+    console.log('cartes cashless')
 })
