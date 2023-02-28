@@ -59,7 +59,12 @@
       "adminPassword": "????????",
       "cashless": "demo",
       "server_cashless": "https://demo.cashless.tibillet.localhost",
-      "key_cashless": ""
+      "key_cashless": "",
+      "cards": {
+        "base_url": "https://demo.cashless.tibillet.localhost/qr/",
+        "origine": "",
+        "generation": 1
+      }
     },
     "billetistan": {
       "subDomain": "billetistan",
