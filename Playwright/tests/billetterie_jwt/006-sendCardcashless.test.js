@@ -6,7 +6,7 @@ const env = getEnv()
 const email = process.env.TEST_MAIL
 let tokenBilletterie
 
-test.describe('On créé des évents', () => {
+test.describe('on envoie les cartes cashless !', () => {
 
 
 })
