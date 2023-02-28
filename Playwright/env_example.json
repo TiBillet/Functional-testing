@@ -143,22 +143,22 @@
         "generation": 1,
         "cards": []
       }
+    }
+  },
+  "cashlessServer": {
+    "demo": {
+      "subDomain": "demo.cashless",
+      "rootUser": "RootTest",
+      "rootPassword": "zohR5roov6vaeF2thunoo2Ooph8Per",
+      "adminUser": "TestAdmin",
+      "adminPassword": "mi5Iechi"
     },
-    "cashlessServer": {
-      "demo": {
-        "subDomain": "demo.cashless",
-        "rootUser": "RootTest",
-        "rootPassword": "zohR5roov6vaeF2thunoo2Ooph8Per",
-        "adminUser": "TestAdmin",
-        "adminPassword": "mi5Iechi"
-      },
-      "billetistan": {
-        "subDomain": "billetistan.cashless",
-        "rootUser": "RootTest",
-        "rootPassword": "zohR5roov6vaeF2thunoo2Ooph8Per",
-        "adminUser": "TestAdmin",
-        "adminPassword": "mi5Iechi"
-      }
+    "billetistan": {
+      "subDomain": "billetistan.cashless",
+      "rootUser": "RootTest",
+      "rootPassword": "zohR5roov6vaeF2thunoo2Ooph8Per",
+      "adminUser": "TestAdmin",
+      "adminPassword": "mi5Iechi"
     }
   }
 }
