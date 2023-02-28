@@ -41,28 +41,33 @@ test.describe('root - Peuplement initial de la db "billetterie".', () => {
             expect(response.ok()).toBeTruthy()
             const retour = await response.json()
 
-            console.log(`-> Create places ${placeR.value.organisation}`)
+            console.log("-> Create places retour : ",retour)
+            placeR.value['uuid'] = retour.uuid
 
         }
         // maj pour garder le state db dans les prochains tests
         updateData(dataDb)
     })
 
-    test.skip('Create artist', async ({request}) => {
+    test('Create artist', async ({request}) => {
         const dataDb = getData()
         let response
         const artists = dataDb.filter(obj => obj.typeData === 'artist')
         for (const artistR of artists) {
+
             artistR.value['stripe_connect_account'] = env.stripeAccountId
             console.log('Création artiste', artistR.value.organisation)
+
             response = await request.post(getTenantUrl('meta') + '/api/artist/', {
                 headers: {
                     "Content-Type": "application/json"
                 },
                 data: artistR.value
             })
+
             expect(response.ok()).toBeTruthy()
             const retour = await response.json()
+
             // console.log('retour artist =', retour)
             // mémorise le uuid de l'artiste 'Ziskakan'
             artistR.value['uuid'] = retour.uuid
