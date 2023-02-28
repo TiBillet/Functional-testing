@@ -1,13 +1,19 @@
 import {test} from '@playwright/test'
-import {userAgentString} from '../../mesModules/commun.js'
+import {getEnv, userAgentString} from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
 test.use({viewport: {width: 1024, height: 800}})
 
-const urlTester = 'http://localhost:8001/wv/login_hardware'
+const env = getEnv()
+
+// https://demo.cashless.tibillet.localhost
+const urlRoot = 'https://' + env.cashlessServer.demo.subDomain + '.' + env.domain
+const urlTester = urlRoot + '/wv/login_hardware'
+console.log('urlTester =', urlTester)
+
 let page
 
-test.describe('Connexion appareils client.', () => {
+test.describe.only('Connexion appareils client.', () => {
   test('login_hardware', async ({browser}) => {
     // 1 - connexion appareil client
     page = await browser.newPage()
@@ -20,14 +26,16 @@ test.describe('Connexion appareils client.', () => {
 
     const currentUrl = page.url()
 
+    console.log('currentUrl =', currentUrl)
+    await page.pause()
     // autorise l'appareil
-    if (currentUrl !== 'http://localhost:8001/wv/') {
+    if (currentUrl !== urlRoot + '/wv/') {
       const pageAdmin = await browser.newPage()
-      await pageAdmin.goto('http://localhost:8001/')
-
+      await pageAdmin.goto(urlRoot)
+await page.pause()
       // connexion admin
-      await pageAdmin.locator('#password').fill(process.env.STAFF_PWD)
-      await pageAdmin.locator('#username').fill(process.env.STAFF_LOGIN)
+      await pageAdmin.locator('#password').fill(env.cashlessServer.demo.staffPassword)
+      await pageAdmin.locator('#username').fill(env.cashlessServer.demo.staffUser)
       await pageAdmin.locator('#submit').click()
 
 
@@ -39,7 +47,7 @@ test.describe('Connexion appareils client.', () => {
 
       // Click text=Enregistrer
       await pageAdmin.locator('text=Enregistrer').click()
-      await pageAdmin.waitForURL('http://localhost:8001/adminstaff/APIcashless/appareil/')
+      await pageAdmin.waitForURL(urlRoot + '/adminstaff/APIcashless/appareil/')
       await pageAdmin.close()
     }
     await page.close()
