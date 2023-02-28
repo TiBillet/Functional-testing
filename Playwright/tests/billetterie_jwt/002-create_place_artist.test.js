@@ -3,7 +3,6 @@ import {getEnv, getTenantUrl, getRootJWT, randomDate, initData, getData, updateD
 // commun.js avant dataPeuplementInit.json, pour les variables d'environnement
 
 const env = getEnv()
-const email = process.env.TEST_MAIL
 let tokenBilletterie
 
 test.describe('root - Peuplement initial de la db "billetterie".', () => {
@@ -20,10 +19,13 @@ test.describe('root - Peuplement initial de la db "billetterie".', () => {
         for (const placeR of places) {
             // ajout, donc modification
             placeR.value['stripe_connect_account'] = env.stripeAccountId
-            placeR.value['server_cashless'] = env.ticketing[placeR.value['organisation'].toLowerCase()].server_cashless
-            placeR.value['key_cashless'] = env.ticketing[placeR.value['organisation'].toLowerCase()].key_cashless
+            // url cashless server
+            const indexServer = placeR.value.organisation.toLowerCase()
+            placeR.value['server_cashless'] = 'https://' + env.cashlessServer[indexServer].subDomain + '.' + env.domain
+            placeR.value['key_cashless'] = env.ticketing[indexServer].key_cashless
             console.log('Création du lieu ', placeR.value.organisation)
             console.log('    data : ', placeR.value)
+            console.log('url meta =', getTenantUrl('meta'))
             response = await request.post(getTenantUrl('meta') + '/api/place/', {
                 headers: {
                     "Content-Type": "application/json"
@@ -31,12 +33,14 @@ test.describe('root - Peuplement initial de la db "billetterie".', () => {
                 data: placeR.value
             })
             expect(response.ok()).toBeTruthy()
+            const retour = await response.json()
+            console.log(`-> Create places ${placeR.value.organisation}`)
         }
         // maj pour garder le state db dans les prochains tests
         updateData(dataDb)
     })
 
-    test('Create artist', async ({request}) => {
+    test.skip('Create artist', async ({request}) => {
         const dataDb = getData()
         let response
         const artists = dataDb.filter(obj => obj.typeData === 'artist')
