@@ -6,14 +6,13 @@ const env = getEnv()
 const email = process.env.TEST_MAIL
 let tokenBilletterie
 
-test.describe.only('Create product', () => {
+test.describe('Create product', () => {
     test('Get root token', async ({request}) => {
 
         tokenBilletterie = await getRootJWT()
         console.log('tokenBilletterie =', tokenBilletterie)
 
     })
-
 
     test('Create product', async ({request}) => {
         const dataDb = getData()

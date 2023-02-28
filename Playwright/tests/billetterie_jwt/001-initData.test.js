@@ -1,4 +1,4 @@
-import {expect, test} from '@playwright/test'
+import {test} from '@playwright/test'
 import {getEnv, getTenantUrl, getRootJWT, randomDate, initData, getData, updateData} from '../../mesModules/commun.js'
 // commun.js avant dataPeuplementInit.json, pour les variables d'environnement
 
@@ -6,7 +6,7 @@ const env = getEnv()
 const email = process.env.TEST_MAIL
 let tokenBilletterie
 
-test.describe.only('Création du fichier de variables', () => {
+test.describe('Création du fichier de variables', () => {
     test('Get root token', async ({request}) => {
 
         tokenBilletterie = await getRootJWT()

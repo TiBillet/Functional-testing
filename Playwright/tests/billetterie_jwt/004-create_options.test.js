@@ -6,7 +6,7 @@ const env = getEnv()
 const email = process.env.TEST_MAIL
 let tokenBilletterie
 
-test.describe.only('On ajoute les options aux tenants', () => {
+test.describe('On ajoute les options aux tenants', () => {
 
     test('Get root token', async ({request}) => {
         tokenBilletterie = await getRootJWT()
