@@ -1,11 +1,14 @@
 import {test, expect} from '@playwright/test'
-import {userAgentString, connection, goPointSale} from '../../mesModules/commun.js'
+import {userAgentString, getEnv, connection, goPointSale} from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
+test.use({ignoreHTTPSErrors: true})
 test.use({viewport: {width: 1024, height: 800}})
 
-const urlTester = 'http://localhost:8001/wv/'
-
+const env = getEnv()
+const tenant = env.tenantToTest
+const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.domain
+const urlTester = urlRoot + '/wv/'
 let page
 
 test.describe('Point de vente, service direct et commandes', () => {
@@ -32,6 +35,7 @@ test.describe('Point de vente, service direct et commandes', () => {
 
     // bouton "VALIDER"
     await expect(page.locator('#bt-valider >> text=VALIDER')).toBeVisible()
+
   })
 
   test("Commandes", async () => {

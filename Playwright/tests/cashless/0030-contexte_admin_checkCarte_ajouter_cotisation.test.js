@@ -1,27 +1,31 @@
 import {test} from '@playwright/test'
+import { connectionAdmin, getEnv } from '../../mesModules/commun.js'
 
+test.use({ignoreHTTPSErrors: true})
 test.use({viewport: {width: 1024, height: 800}})
+
+const env = getEnv()
+const tenant = env.tenantToTest
+const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.domain
 
 // ne peut être lancé deux fois de suite (le champ input pour la cotisation n'est plus affiché une fois la cotisation effectuée).
 test.describe('Contexte admin, utilisateur "test".', () => {
   test('Cotisation de 15 pour utilisateur "test".', async ({browser}) => {
     const pageAdmin = await browser.newPage()
-    await pageAdmin.goto('http://localhost:8001/')
+    await pageAdmin.goto(urlRoot)
 
     // connexion admin
-    await pageAdmin.locator('#password').fill(process.env.STAFF_PWD)
-    await pageAdmin.locator('#username').fill(process.env.STAFF_LOGIN)
-    await pageAdmin.locator('#submit').click()
+    connectionAdmin(pageAdmin, tenant)
 
     // Attent la fin de requête suite à clique menu "Membres"
     await Promise.all([
-      pageAdmin.waitForRequest('http://localhost:8001/adminstaff/APIcashless/membre/'),
+      pageAdmin.waitForRequest(urlRoot + '/adminstaff/APIcashless/membre/'),
       pageAdmin.locator('.sidebar-dependent .sidebar-section div a span[class="sidebar-link-label"]', {hasText: 'Membres'}).click()
     ])
 
     // Attent la fin de requête suite à clique sur membre "TEST"
     await Promise.all([
-      pageAdmin.waitForRequest('http://localhost:8001/adminstaff/APIcashless/membre/**/change/'),
+      pageAdmin.waitForRequest(urlRoot + '/adminstaff/APIcashless/membre/**/change/'),
       pageAdmin.getByRole('link', {name: 'TEST'}).click()
     ])
 
@@ -33,7 +37,7 @@ test.describe('Contexte admin, utilisateur "test".', () => {
 
     // Attent la fin de requête suite à l'enregistrement
     await Promise.all([
-      pageAdmin.waitForRequest('http://localhost:8001/adminstaff/APIcashless/membre/'),
+      pageAdmin.waitForRequest(urlRoot + '/adminstaff/APIcashless/membre/'),
       await pageAdmin.locator('#membre_form input[value="Enregistrer"]').click()
     ])
 

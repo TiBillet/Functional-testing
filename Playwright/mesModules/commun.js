@@ -18,16 +18,9 @@ test.use({ignoreHTTPSErrors: true})
 
 export const userAgentString = `{"hostname": "${env.device.hostname}", "token": "${env.device.tokenSocket}", "password": "${env.device.password}", "modeNfc": "NFCSI", "front": "${env.device.front}", "ip": "192.168.1.4"}`
 
-export const tagId = {
-  carteTest: env.cards.find(obj => obj.name === 'client1').tagId,
-  carteRobocop: env.cards.find(obj => obj.name === 'client2').tagId,
-  carteMaitresse: env.cards.find(obj => obj.name === 'primaryCard').tagId,
-  carteInconnue: 'CARTINC0'
-}
-
 // ---- billetterie ----
 export function getTenantUrl(subDomain) {
-  return  'https://' + env.ticketing[subDomain].subDomain + '.' + env.domain
+  return 'https://' + env.ticketing[subDomain].subDomain + '.' + env.domain
 }
 
 /**
@@ -116,12 +109,23 @@ export function updateData(dataR) {
 }
 
 // ---- cashless ----
+export function tagId(tenant) {
+  return {
+    carteTest: env.ticketing[tenant].cashless_cards.cards[1][2],
+    carteRobocop: env.ticketing[tenant].cashless_cards.cards[2][2],
+    carteMaitresse: env.ticketing[tenant].cashless_cards.cards[0][2],
+    carteInconnue: 'CARTINC0'
+  }
+}
+
 // nfc
 export async function updateNfc(page) {
   // ajout de la fonction émuler lecteur carte nfc
   await page.evaluate(async () => {
     // stop socket.io
-    SOCKET.close()
+    if (SOCKET !== null) {
+      SOCKET.close()
+    }
 
     // Etendre la class rfid afin d'émuler la lecture d'une carte
     class emuleNfc extends Nfc {
@@ -156,6 +160,20 @@ export async function emulateTagIdNfc(page, tagId) {
 /**
  * Connexion de l'appareil avec la carte maîtresse
  * @param {object} page page html en cours
+ * @param {string} tenant
+ * @returns {Promise<void>}
+ */
+export const connectionAdmin = async function (pageAdmin, tenant) {
+  await test.step('Connexion admin', async () => {
+    await pageAdmin.locator('#password').fill(env.cashlessServer[tenant].adminPassword)
+    await pageAdmin.locator('#username').fill(env.cashlessServer[tenant].adminUser)
+    await pageAdmin.locator('#submit').click()
+  })
+}
+
+/**
+ * Connexion de l'appareil avec la carte maîtresse
+ * @param {object} page page html en cours
  * @param {string} urlTester lien de la page html en cours
  * @returns {Promise<void>}
  */
@@ -169,7 +187,8 @@ export const connection = async function (page, urlTester) {
     await expect(page.locator('text=carte maîtresse', {ignoreCase: true})).toBeVisible()
 
     await updateNfc(page)
-    await emulateTagIdNfc(page, tagId.carteMaitresse)
+
+    await emulateTagIdNfc(page, tagId('demo').carteMaitresse)
   })
 }
 

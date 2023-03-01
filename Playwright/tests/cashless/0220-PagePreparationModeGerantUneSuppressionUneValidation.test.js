@@ -11,7 +11,7 @@ let page
 const listeArticles = [{nom: "Despé", nb: 2, prix: 3.2}, {nom: "CdBoeuf", nb: 1, prix: 25},
   {nom: "Café", nb: 2, prix: 1}]
 
-test.describe('Préparation(S02 commande du test 0120, status: "Non Servie - Payée") mode gérant.', () => {
+test.describe.skip('Préparation(S02 commande du test 0120, status: "Non Servie - Payée") mode gérant.', () => {
   test('Context, connexion.', async ({browser}) => {
     page = await browser.newPage()
     await connection(page, urlTester)

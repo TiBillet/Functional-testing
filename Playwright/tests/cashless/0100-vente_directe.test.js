@@ -1,5 +1,6 @@
 import {test, expect} from '@playwright/test'
 import {
+  getEnv,
   userAgentString,
   tagId,
   connection,
@@ -11,10 +12,13 @@ import {
 } from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
+test.use({ignoreHTTPSErrors: true})
 test.use({viewport: {width: 1024, height: 800}})
 
-const urlTester = 'http://localhost:8001/wv/'
-
+const env = getEnv()
+const tenant = env.tenantToTest
+const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.domain
+const urlTester = urlRoot + '/wv/'
 let page
 
 test.describe('Vente directe', () => {
@@ -23,10 +27,10 @@ test.describe('Vente directe', () => {
     await connection(page, urlTester)
 
     // vider carte
-    await resetCardCashless(page, tagId.carteRobocop)
+    await resetCardCashless(page, tagId(tenant).carteRobocop)
 
     // créditer la carte de robocop de 3x10 crédits et de 0x5 crédit cadeau
-    await creditCardCashless(page, tagId.carteRobocop, 3, 0)
+    await creditCardCashless(page, tagId(tenant).carteRobocop, 3, 0)
 
     // attente affichage menu burger
     await page.locator('.navbar-menu i[class~="menu-burger-icon"]').waitFor({state: 'visible'})
@@ -80,7 +84,7 @@ test.describe('Vente directe', () => {
     await page.locator('#popup-cashless', {hasText: 'Attente lecture carte'}).waitFor({state: 'visible'})
 
     // carte nfc de robocop
-    await emulateTagIdNfc(page, tagId.carteRobocop)
+    await emulateTagIdNfc(page, tagId(tenant).carteRobocop)
 
     // attente affichage "popup-cashless"
     await page.locator('#popup-cashless').waitFor({state: 'visible'})
@@ -112,10 +116,10 @@ test.describe('Vente directe', () => {
 
   test('Achat de 2 article par cb.', async () => {
     // vider carte
-    await resetCardCashless(page, tagId.carteRobocop)
+    await resetCardCashless(page, tagId(tenant).carteRobocop)
 
     // créditer la carte de robocop de 3x10 crédits et de 0x5 crédit cadeau
-    await creditCardCashless(page, tagId.carteRobocop, 2, 1)
+    await creditCardCashless(page, tagId(tenant).carteRobocop, 2, 1)
 
     // attente affichage menu burger
     await page.locator('.navbar-menu i[class~="menu-burger-icon"]').waitFor({state: 'visible'})

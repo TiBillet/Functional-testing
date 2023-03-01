@@ -1,10 +1,15 @@
 import {test, expect} from '@playwright/test'
-import {userAgentString, connection, goPointSale, tagId, emulateTagIdNfc, confirmation, evaluateOnclickFunctionString} from '../../mesModules/commun.js'
+import {getEnv, userAgentString, connection, goPointSale, tagId, emulateTagIdNfc, confirmation, evaluateOnclickFunctionString} from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
+test.use({ignoreHTTPSErrors: true})
 test.use({viewport: {width: 1024, height: 800}})
 
-const urlTester = 'http://localhost:8001/wv/'
+const env = getEnv()
+const tenant = env.tenantToTest
+const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.domain
+const urlTester = urlRoot + '/wv/'
+
 let page
 
 test.describe('Ajout crédit et crédit cadeau', () => {
@@ -30,7 +35,7 @@ test.describe('Ajout crédit et crédit cadeau', () => {
     await page.locator('#bt-valider').click()
 
     // carte nfc de robocop
-    await emulateTagIdNfc(page, tagId.carteRobocop)
+    await emulateTagIdNfc(page, tagId(tenant).carteRobocop)
 
     // attente affichage "popup-cashless"
     await page.locator('#popup-cashless').waitFor({state: 'visible'})
@@ -95,7 +100,7 @@ test.describe('Ajout crédit et crédit cadeau', () => {
     await page.locator('#popup-confirme-valider').click()
 
     // carte nfc de robocop
-    await emulateTagIdNfc(page, tagId.carteRobocop)
+    await emulateTagIdNfc(page, tagId(tenant).carteRobocop)
 
     // attente affichage "popup-cashless"
     await page.locator('#popup-cashless').waitFor({state: 'visible'})
@@ -136,7 +141,7 @@ test.describe('Ajout crédit et crédit cadeau', () => {
     await page.locator('#popup-cashless').waitFor({state: 'visible'})
 
     // carte nfc de robocop
-    await emulateTagIdNfc(page, tagId.carteRobocop)
+    await emulateTagIdNfc(page, tagId(tenant).carteRobocop)
 
     // attente affichage "popup-cashless"
     await page.locator('#popup-cashless').waitFor({state: 'visible'})

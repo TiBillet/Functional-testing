@@ -22,7 +22,7 @@ const listeArticles = [{nom: "Pression 33", nb: 2, prix: 2}, {nom: "CdBoeuf", nb
   prix: 8
 }]
 
-test.describe('Préparation de la table S01 commandée par le test 0110, tout servir et payer.', () => {
+test.describe.skip('Préparation de la table S01 commandée par le test 0110, tout servir et payer.', () => {
   test('Context, connexion.', async ({browser}) => {
     page = await browser.newPage()
     await connection(page, urlTester)

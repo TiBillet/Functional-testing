@@ -1,5 +1,6 @@
 import {test, expect} from '@playwright/test'
 import {
+  getEnv,
   userAgentString,
   connection,
   goPointSale,
@@ -12,10 +13,13 @@ import {
 } from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
+test.use({ignoreHTTPSErrors: true})
 test.use({viewport: {width: 1024, height: 800}})
 
-const urlTester = 'http://localhost:8001/wv/'
-
+const env = getEnv()
+const tenant = env.tenantToTest
+const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.domain
+const urlTester = urlRoot + '/wv/'
 let page
 
 test.describe('Envoyer en préparation et aller à la page de paiement, tests boutons.', () => {
