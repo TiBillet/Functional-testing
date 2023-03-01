@@ -40,9 +40,8 @@ test.describe('root - Peuplement initial de la db "billetterie".', () => {
 
             expect(response.ok()).toBeTruthy()
             const retour = await response.json()
-
-            console.log("-> Create places retour : ",retour)
             placeR.value['uuid'] = retour.uuid
+            console.log("-> Create places retour : ",retour)
 
         }
         // maj pour garder le state db dans les prochains tests
@@ -71,6 +70,9 @@ test.describe('root - Peuplement initial de la db "billetterie".', () => {
             // console.log('retour artist =', retour)
             // mémorise le uuid de l'artiste 'Ziskakan'
             artistR.value['uuid'] = retour.uuid
+            console.log("-> Create artiste retour : ",retour)
+
+
         }
         updateData(dataDb)
     })
