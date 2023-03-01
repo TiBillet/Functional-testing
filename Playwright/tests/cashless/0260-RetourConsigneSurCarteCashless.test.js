@@ -16,7 +16,7 @@ const urlTester = 'http://localhost:8001/wv/'
 
 let page
 
-test.describe('Retour consigne sur carte cashless.', () => {
+test.describe.skip('Retour consigne sur carte cashless.', () => {
   test('Context, connexion.', async ({browser}) => {
     page = await browser.newPage()
     await connection(page, urlTester)

@@ -1,5 +1,6 @@
 import {test, expect} from '@playwright/test'
 import {
+  getEnv,
   userAgentString,
   tagId,
   connection,
@@ -11,10 +12,13 @@ import {
 } from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
+test.use({ignoreHTTPSErrors: true})
 test.use({viewport: {width: 1024, height: 800}})
 
-const urlTester = 'http://localhost:8001/wv/'
-
+const env = getEnv()
+const tenant = env.tenantToTest
+const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.domain
+const urlTester = urlRoot + '/wv/'
 let page
 
 test.describe('Envoyer en préparation, paiemant cashless, fonds insuffisants sur une carte.', () => {
@@ -23,13 +27,13 @@ test.describe('Envoyer en préparation, paiemant cashless, fonds insuffisants su
     await connection(page, urlTester)
 
     // vider carte Robocop
-    await resetCardCashless(page, tagId.carteRobocop)
+    await resetCardCashless(page, tagId(tenant).carteRobocop)
 
     // recharge carte de Robocop
-    await creditCardCashless(page, tagId.carteRobocop, 4, 0)
+    await creditCardCashless(page, tagId(tenant).carteRobocop, 4, 0)
 
     // vider carte Test
-    await resetCardCashless(page, tagId.carteTest)
+    await resetCardCashless(page, tagId(tenant).carteTest)
   })
 
   test('Envoyer en préparation et payer en une fois 3 tarticles.', async () => {
@@ -72,7 +76,7 @@ test.describe('Envoyer en préparation, paiemant cashless, fonds insuffisants su
     await page.locator('#popup-cashless #popup-lecteur-nfc', {hasText: 'Attente lecture carte'}).waitFor({state: 'visible'})
 
     // émule carte robocop
-    await emulateTagIdNfc(page, tagId.carteTest)
+    await emulateTagIdNfc(page, tagId(tenant).carteTest)
 
   })
 
@@ -117,7 +121,7 @@ test.describe('Envoyer en préparation, paiemant cashless, fonds insuffisants su
     await page.locator('#popup-cashless #popup-lecteur-nfc', {hasText: 'Attente lecture carte'}).waitFor({state: 'visible'})
 
     // émule carte robocop
-    await emulateTagIdNfc(page, tagId.carteRobocop)
+    await emulateTagIdNfc(page, tagId(tenant).carteRobocop)
   })
 
   test("Retour pour la 2ème carte (fonds suffisants).", async () => {

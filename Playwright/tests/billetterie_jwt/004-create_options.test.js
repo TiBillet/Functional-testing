@@ -3,15 +3,15 @@ import {getEnv, getTenantUrl, getRootJWT, randomDate, initData, getData, updateD
 // commun.js avant dataPeuplementInit.json, pour les variables d'environnement
 
 const env = getEnv()
-const email = process.env.TEST_MAIL
 let tokenBilletterie
+
+test.use({ignoreHTTPSErrors: true})
 
 test.describe('On ajoute les options aux tenants', () => {
 
     test('Get root token', async ({request}) => {
         tokenBilletterie = await getRootJWT()
         console.log('tokenBilletterie =', tokenBilletterie)
-
     })
 
     test('Create options', async ({request}) => {

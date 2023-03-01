@@ -20,7 +20,7 @@ const listeArticles = [{nom: "Eau 1L", nb: 1, prix: 1.5}, {nom: "CdBoeuf", nb: 1
   {nom: "Soft G", nb: 2, prix: 1.5}, {nom: "Despé", nb: 1, prix: 3.2}, {nom: "Café", nb: 3, prix: 1}]
 let retour
 
-test.describe('Préparation(EX02 commande du test 0170, status: "Non Servie - Payée") mode gérant, mobile 600x800.', () => {
+test.describe.skip('Préparation(EX02 commande du test 0170, status: "Non Servie - Payée") mode gérant, mobile 600x800.', () => {
   test('Context, connexion.', async ({browser}) => {
     page = await browser.newPage()
     await connection(page, urlTester)

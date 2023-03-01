@@ -1,10 +1,14 @@
 import {test, expect} from '@playwright/test'
-import {userAgentString, connection, goPointSale, tagId, emulateTagIdNfc} from '../../mesModules/commun.js'
+import {getEnv, userAgentString, connection, goPointSale, tagId, emulateTagIdNfc} from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
+test.use({ignoreHTTPSErrors: true})
 test.use({viewport: {width: 1024, height: 800}})
 
-const urlTester = 'http://localhost:8001/wv/'
+const env = getEnv()
+const tenant = env.tenantToTest
+const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.domain
+const urlTester = urlRoot + '/wv/'
 
 let page
 
@@ -43,7 +47,7 @@ test.describe('Check carte.', () => {
     // attente affichage menu burger
     await page.locator('.navbar-menu i[class~="menu-burger-icon"]').waitFor({state: 'visible'})
 
-    emulateTagIdNfc(page, tagId.carteInconnue)
+    emulateTagIdNfc(page, tagId(tenant).carteInconnue)
 
     // attente affichage "popup-cashless"
     await page.locator('#popup-cashless').waitFor({state: 'visible'})
@@ -72,7 +76,7 @@ test.describe('Check carte.', () => {
     await page.locator('#page-commandes-footer div[class~="test-check-carte"]').click()
 
     // Emulation de la carte nfc
-    emulateTagIdNfc(page, tagId.carteTest)
+    emulateTagIdNfc(page, tagId(tenant).carteTest)
 
     // attente affichage "popup-cashless"
     await page.locator('#popup-cashless').waitFor({state: 'visible'})
@@ -98,7 +102,7 @@ test.describe('Check carte.', () => {
     await page.locator('#page-commandes-footer div[class~="test-check-carte"]').click()
 
     // Emulation de la carte nfc
-    emulateTagIdNfc(page, tagId.carteRobocop)
+    emulateTagIdNfc(page, tagId(tenant).carteRobocop)
 
     // attente affichage "popup-cashless"
     await page.locator('#popup-cashless').waitFor({state: 'visible'})

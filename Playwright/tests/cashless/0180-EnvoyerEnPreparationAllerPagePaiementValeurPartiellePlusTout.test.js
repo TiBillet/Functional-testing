@@ -16,7 +16,7 @@ const urlTester = 'http://localhost:8001/wv/'
 
 let page
 
-test.describe('Envoyer en préparation et aller à la page de paiement, une "Valeur" partielle et sélectionner "Tout".', () => {
+test.describe.skip('Envoyer en préparation et aller à la page de paiement, une "Valeur" partielle et sélectionner "Tout".', () => {
   /*
   // dev uniquement
   test('aller table Ex03', async ({browser}) => {

@@ -3,8 +3,9 @@ import {getEnv, getTenantUrl, getRootJWT, randomDate, initData, getData, updateD
 // commun.js avant dataPeuplementInit.json, pour les variables d'environnement
 
 const env = getEnv()
-const email = process.env.TEST_MAIL
 let tokenBilletterie
+
+test.use({ignoreHTTPSErrors: true})
 
 test.describe('On créé des évents', () => {
 

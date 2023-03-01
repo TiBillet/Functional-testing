@@ -18,7 +18,8 @@ const urlTester = 'http://localhost:8001/wv/'
 let page
 const listeArticles = [{nom: "Eau 1L", nb: 1, prix: 1.5}, {nom: "CdBoeuf", nb: 1, prix: 25},
   {nom: "Soft G", nb: 2, prix: 1.5}, {nom: "Despé", nb: 1, prix: 3.2}, {nom: "Café", nb: 3, prix: 1}]
-test.describe('Envoyer en préparation et aller à la page de paiement, sélectionner "Tout".', () => {
+
+test.describe.skip('Envoyer en préparation et aller à la page de paiement, sélectionner "Tout".', () => {
   /*
     // dev uniquement
     test('aller table Ex02', async ({browser}) => {

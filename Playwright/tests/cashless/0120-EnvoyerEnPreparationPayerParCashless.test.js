@@ -1,5 +1,6 @@
 import {test, expect} from '@playwright/test'
 import {
+  getEnv,
   userAgentString,
   tagId,
   connection,
@@ -11,10 +12,13 @@ import {
 } from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
+test.use({ignoreHTTPSErrors: true})
 test.use({viewport: {width: 1024, height: 800}})
 
-const urlTester = 'http://localhost:8001/wv/'
-
+const env = getEnv()
+const tenant = env.tenantToTest
+const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.domain
+const urlTester = urlRoot + '/wv/'
 let page
 
 test.describe('Envoyer en préparation, paiemant cashless, payer en une seule fois.', () => {
@@ -23,9 +27,9 @@ test.describe('Envoyer en préparation, paiemant cashless, payer en une seule fo
     await connection(page, urlTester)
 
     // vider carte robocop
-    await resetCardCashless(page, tagId.carteRobocop)
+    await resetCardCashless(page, tagId(tenant).carteRobocop)
     // recharge carte de robocop
-    await creditCardCashless(page, tagId.carteRobocop, 4, 0)
+    await creditCardCashless(page, tagId(tenant).carteRobocop, 4, 0)
   })
 
   test('Envoyer en préparation et payer en une fois 3 tarticles.', async () => {
@@ -74,7 +78,7 @@ test.describe('Envoyer en préparation, paiemant cashless, payer en une seule fo
     await page.locator('#popup-cashless #popup-lecteur-nfc', {hasText: 'Attente lecture carte'}).waitFor({state: 'visible'})
 
     // émule carte robocop
-    await emulateTagIdNfc(page, tagId.carteRobocop)
+    await emulateTagIdNfc(page, tagId(tenant).carteRobocop)
   })
 
   test("Retour de l'envoi en préparation.", async () => {

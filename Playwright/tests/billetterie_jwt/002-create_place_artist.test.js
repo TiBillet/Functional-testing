@@ -5,77 +5,78 @@ import {getEnv, getTenantUrl, getRootJWT, randomDate, initData, getData, updateD
 const env = getEnv()
 let tokenBilletterie
 
+test.use({ignoreHTTPSErrors: true})
+
 test.describe('root - Peuplement initial de la db "billetterie".', () => {
-    test('Get root token', async ({request}) => {
-        tokenBilletterie = await getRootJWT()
-        console.log('tokenBilletterie =', tokenBilletterie)
-    })
+  test('Get root token', async ({request}) => {
+    tokenBilletterie = await getRootJWT()
+    console.log('tokenBilletterie =', tokenBilletterie)
+  })
 
-    test('Create places', async ({request}) => {
+  test('Create places', async ({request}) => {
 
-        // provenant de dataPeuplementTempo.json
-        const dataDb = getData()
-        let response
-        const places = dataDb.filter(obj => obj.typeData === 'place')
+    // provenant de dataPeuplementTempo.json
+    const dataDb = getData()
+    let response
+    const places = dataDb.filter(obj => obj.typeData === 'place')
 
-        for (const placeR of places) {
-            // ajout, donc modification
-            placeR.value['stripe_connect_account'] = env.stripeAccountId
-            // url cashless server
+    for (const placeR of places) {
+      // ajout, donc modification
+      placeR.value['stripe_connect_account'] = env.stripeAccountId
 
-            const indexServer = placeR.value.organisation.toLowerCase()
-            placeR.value['server_cashless'] = env.ticketing[indexServer].server_cashless
-            placeR.value['key_cashless'] = env.ticketing[indexServer].key_cashless
+      const indexServer = placeR.value.organisation.toLowerCase()
+      placeR.value['server_cashless'] = env.ticketing[indexServer].server_cashless
+      placeR.value['key_cashless'] = env.ticketing[indexServer].key_cashless
 
-            console.log('Création du lieu ', placeR.value.organisation)
-            console.log('    data : ', placeR.value)
-            console.log('url meta =', getTenantUrl('meta'))
+      // console.log('Création du lieu ', placeR.value.organisation)
+      // console.log('    data : ', placeR.value)
+      // console.log('url meta =', getTenantUrl('meta') + '/api/place/')
 
-            response = await request.post(getTenantUrl('meta') + '/api/place/', {
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                data: placeR.value
-            })
+      try {
+        response = await request.post(getTenantUrl('meta') + '/api/place/', {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          data: placeR.value
+        })
+        // console.log('response =', response)
+      } catch (error) {
+        console.log('-> response /api/place=', error)
+      }
 
-            expect(response.ok()).toBeTruthy()
-            const retour = await response.json()
-            placeR.value['uuid'] = retour.uuid
-            console.log("-> Create places retour : ",retour)
+      expect(response.ok()).toBeTruthy()
+      const retour = await response.json()
+      console.log(`-> Retour de Create places ${placeR.value.organisation} : `, retour)
+      placeR.value['uuid'] = retour.uuid
+    }
+    // maj pour garder le state db dans les prochains tests
+    updateData(dataDb)
 
-        }
-        // maj pour garder le state db dans les prochains tests
-        updateData(dataDb)
-    })
+  })
 
-    test('Create artist', async ({request}) => {
-        const dataDb = getData()
-        let response
-        const artists = dataDb.filter(obj => obj.typeData === 'artist')
-        for (const artistR of artists) {
+  test('Create artist', async ({request}) => {
+    const dataDb = getData()
+    let response
+    const artists = dataDb.filter(obj => obj.typeData === 'artist')
+    for (const artistR of artists) {
 
-            artistR.value['stripe_connect_account'] = env.stripeAccountId
-            console.log('Création artiste', artistR.value.organisation)
+      artistR.value['stripe_connect_account'] = env.stripeAccountId
+      console.log('Création artiste', artistR.value.organisation)
 
-            response = await request.post(getTenantUrl('meta') + '/api/artist/', {
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                data: artistR.value
-            })
+      response = await request.post(getTenantUrl('meta') + '/api/artist/', {
+        headers: {
+          "Content-Type": "application/json"
+        },
+        data: artistR.value
+      })
 
-            expect(response.ok()).toBeTruthy()
-            const retour = await response.json()
+      expect(response.ok()).toBeTruthy()
+      const retour = await response.json()
 
-            // console.log('retour artist =', retour)
-            // mémorise le uuid de l'artiste 'Ziskakan'
-            artistR.value['uuid'] = retour.uuid
-            console.log("-> Create artiste retour : ",retour)
-
-
-        }
-        updateData(dataDb)
-    })
-
-
+      // console.log('retour artist =', retour)
+      // mémorise le uuid de l'artiste 'Ziskakan'
+      artistR.value['uuid'] = retour.uuid
+    }
+    updateData(dataDb)
+  })
 })
