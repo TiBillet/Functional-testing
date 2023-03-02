@@ -1,6 +1,7 @@
 import {test, expect} from '@playwright/test'
 import Big from '../../mesModules/big.js'
 import {
+  getEnv,
   userAgentString,
   connection,
   bigToFloat,
@@ -12,13 +13,16 @@ import {
 } from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
+test.use({ignoreHTTPSErrors: true})
 test.use({viewport: {width: 1024, height: 800}})
 
-const urlTester = 'http://localhost:8001/wv/'
-
+const env = getEnv()
+const tenant = env.tenantToTest
+const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.domain
+const urlTester = urlRoot + '/wv/'
 let page, resteApayer = new Big(0)
 
-test.describe.skip('Envoyer en préparation et aller à la page de paiement, une "Valeur" partielle  plus 2 articles plus "Tout".', () => {
+test.describe('Envoyer en préparation et aller à la page de paiement, une "Valeur" partielle  plus 2 articles plus "Tout".', () => {
   /*
    // dev uniquement
    test('aller table Ex03', async ({browser}) => {

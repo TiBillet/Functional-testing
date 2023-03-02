@@ -1,5 +1,6 @@
 import {test, expect} from '@playwright/test'
 import {
+  getEnv,
   userAgentString,
   connection,
   goTableOrder,
@@ -10,11 +11,15 @@ import {
 } from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
+test.use({ignoreHTTPSErrors: true})
 test.use({viewport: {width: 1024, height: 800}})
 
-const urlTester = 'http://localhost:8001/wv/'
-
+const env = getEnv()
+const tenant = env.tenantToTest
+const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.domain
+const urlTester = urlRoot + '/wv/'
 let page
+
 // la liste d'articles
 const listeArticles = [{nom: "Pression 33", nb: 2, prix: 2}, {nom: "CdBoeuf", nb: 1, prix: 25}, {
   nom: "Gateau",
@@ -22,7 +27,8 @@ const listeArticles = [{nom: "Pression 33", nb: 2, prix: 2}, {nom: "CdBoeuf", nb
   prix: 8
 }]
 
-test.describe.skip('Préparation de la table S01 commandée par le test 0110, tout servir et payer.', () => {
+
+test.describe('Préparation de la table S01 commandée par le test 0110, tout servir et payer.', () => {
   test('Context, connexion.', async ({browser}) => {
     page = await browser.newPage()
     await connection(page, urlTester)
@@ -57,7 +63,7 @@ test.describe.skip('Préparation de la table S01 commandée par le test 0110, to
   test('Etat page préparation = "Non servie - Non payée" pour la table S01.', async () => {
     // Clique sur "Prépara." et attend le retour des préparations pour la table S01
     const [response] = await Promise.all([
-      page.waitForResponse('http://localhost:8001/wv/preparation/1'),
+      page.waitForResponse(urlRoot + '/wv/preparation/1'),
       page.locator('#commandes-table-menu div >> text=Prépara.').click()
     ])
 
@@ -133,7 +139,7 @@ test.describe.skip('Préparation de la table S01 commandée par le test 0110, to
   test('Préparation table S01, valider "CdBoeuf et Gateau".', async () => {
     // Valiadtion du premier lieu de préparation (CdBoeuf et Gateau) et attente du retour des préparations pour la table S01
     await Promise.all([
-      page.waitForResponse('http://localhost:8001/wv/preparation'),
+      page.waitForResponse(urlRoot + '/wv/preparation'),
       // clique sur valider
       await page.locator('.com-conteneur', {hasText: 'CdBoeuf'}).locator('.com-bt-valider-normal i[class="fas fa-check"]').click()
     ])
@@ -152,7 +158,7 @@ test.describe.skip('Préparation de la table S01 commandée par le test 0110, to
 
     // Valiadtion du 2émé lieu de préparation (Pression 33) et attente du retour pour la table S01
     await Promise.all([
-      page.waitForResponse('http://localhost:8001/wv/preparation'),
+      page.waitForResponse(urlRoot + '/wv/preparation'),
       // clique sur valider
       await page.locator('.com-conteneur', {hasText: 'Pression 33'}).locator('.com-bt-valider-normal i[class="fas fa-check"]').click()
     ])
@@ -226,7 +232,7 @@ test.describe.skip('Préparation de la table S01 commandée par le test 0110, to
 
     // Clique sur "Prépara." et attend le retour des préparations pour la table S01
     await Promise.all([
-      page.waitForResponse('http://localhost:8001/wv/preparation/1'),
+      page.waitForResponse(urlRoot + '/wv/preparation/1'),
       page.locator('#commandes-table-menu div >> text=Prépara.').click()
     ])
 

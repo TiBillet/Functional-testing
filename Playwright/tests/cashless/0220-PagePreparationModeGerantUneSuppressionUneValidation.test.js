@@ -1,17 +1,21 @@
 import {test, expect} from '@playwright/test'
-import {userAgentString, connection, managerMode, goTableOrder, bigToFloat} from '../../mesModules/commun.js'
+import {getEnv, userAgentString, connection, managerMode, goTableOrder, bigToFloat} from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
+test.use({ignoreHTTPSErrors: true})
 test.use({viewport: {width: 1024, height: 800}})
 
-const urlTester = 'http://localhost:8001/wv/'
-
+const env = getEnv()
+const tenant = env.tenantToTest
+const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.domain
+const urlTester = urlRoot + '/wv/'
 let page
+
 // la liste d'articles
 const listeArticles = [{nom: "Despé", nb: 2, prix: 3.2}, {nom: "CdBoeuf", nb: 1, prix: 25},
   {nom: "Café", nb: 2, prix: 1}]
 
-test.describe.skip('Préparation(S02 commande du test 0120, status: "Non Servie - Payée") mode gérant.', () => {
+test.describe('Préparation(S02 commande du test 0120, status: "Non Servie - Payée") mode gérant.', () => {
   test('Context, connexion.', async ({browser}) => {
     page = await browser.newPage()
     await connection(page, urlTester)
@@ -26,7 +30,7 @@ test.describe.skip('Préparation(S02 commande du test 0120, status: "Non Servie 
     await goTableOrder(page, 'S02')
 
     await Promise.all([
-      page.waitForResponse('http://localhost:8001/wv/preparation/2'),
+      page.waitForResponse(urlRoot + '/wv/preparation/2'),
       page.locator('#commandes-table-menu div >> text=Prépara.').click()
     ])
   })
@@ -44,7 +48,7 @@ test.describe.skip('Préparation(S02 commande du test 0120, status: "Non Servie 
 
     // Cliquer sur "Prépara." et attendre le retour des préparations pour la table S02
     const [response] = await Promise.all([
-      page.waitForResponse('http://localhost:8001/wv/preparation/2'),
+      page.waitForResponse(urlRoot + '/wv/preparation/2'),
       page.locator('#commandes-table-menu div >> text=Prépara.').click()
     ])
 
@@ -164,7 +168,7 @@ test.describe.skip('Préparation(S02 commande du test 0120, status: "Non Servie 
     // Cliquer sur le bouton "SUPPRIMER ARTICLE(S)" et attendre le retour des préparations pour la table S02
     // TODO: ajouter une étape de confirmation
     await Promise.all([
-      page.waitForResponse('http://localhost:8001/wv/preparation'),
+      page.waitForResponse(urlRoot + '/wv/preparation'),
       await page.locator('.com-conteneur', {hasText: article.nom}).locator('.com-article-footer .com-ident-supp').click()
     ])
 
@@ -189,7 +193,7 @@ test.describe.skip('Préparation(S02 commande du test 0120, status: "Non Servie 
     // Cliquer sur le bouton "VALIDER PREPARATION" et attendre le retour des préparations pour la table S02
     // TODO: ajouter une étape de confirmation
     await Promise.all([
-      page.waitForResponse('http://localhost:8001/wv/preparation'),
+      page.waitForResponse(urlRoot + '/wv/preparation'),
       await page.locator('.com-conteneur', {hasText: article.nom}).locator('.com-article-footer .com-ident-val').click()
     ])
 
@@ -212,7 +216,7 @@ test.describe.skip('Préparation(S02 commande du test 0120, status: "Non Servie 
 
     // Cliquer sur le bouton "VALIDER PREPARATION" et attendre le retour des préparations pour la table S02
     await Promise.all([
-      page.waitForResponse('http://localhost:8001/wv/preparation'),
+      page.waitForResponse(urlRoot + '/wv/preparation'),
       await page.locator('.com-conteneur', {hasText: 'Café'}).locator('.com-article-footer .com-ident-val').click()
     ])
 
@@ -235,7 +239,7 @@ test.describe.skip('Préparation(S02 commande du test 0120, status: "Non Servie 
 
     // Cliquer sur le bouton "VALIDER PREPARATION" et attendre le retour des préparations pour la table S02
     await Promise.all([
-      page.waitForResponse('http://localhost:8001/wv/preparation'),
+      page.waitForResponse(urlRoot + '/wv/preparation'),
       await page.locator('.com-conteneur', {hasText: article.nom}).locator('.com-article-footer .com-ident-val').click()
     ])
 

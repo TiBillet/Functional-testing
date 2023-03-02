@@ -1,5 +1,6 @@
 import {test, expect} from '@playwright/test'
 import {
+  getEnv,
   userAgentString,
   connection,
   tagId,
@@ -10,22 +11,25 @@ import {
 } from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
+test.use({ignoreHTTPSErrors: true})
 test.use({viewport: {width: 600, height: 800}})
 
-const urlTester = 'http://localhost:8001/wv/'
-
+const env = getEnv()
+const tenant = env.tenantToTest
+const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.domain
+const urlTester = urlRoot + '/wv/'
 let page
 
-test.describe.skip('Retour consigne sur carte cashless.', () => {
+test.describe('Retour consigne sur carte cashless.', () => {
   test('Context, connexion.', async ({browser}) => {
     page = await browser.newPage()
     await connection(page, urlTester)
 
     // vider carte
-    await resetCardCashless(page, tagId.carteRobocop)
+    await resetCardCashless(page, tagId(tenant).carteRobocop)
 
-    // créditer la carte de robocop de 3x10 crédits et de 0x5 crédit cadeau
-    await creditCardCashless(page, tagId.carteRobocop, 1, 0)
+    // créditer la carte de robocop de 1x10 crédits et de 0x5 crédit cadeau
+    await creditCardCashless(page, tagId(tenant).carteRobocop, 1, 0)
   })
 
   // test bascule bouton "Addition" et la liste
@@ -42,7 +46,7 @@ test.describe.skip('Retour consigne sur carte cashless.', () => {
     await page.locator('#popup-cashless', {hasText: 'Attente lecture carte'}).waitFor({state: 'visible'})
 
     // émule la carte nfc de Robocop
-    emulateTagIdNfc(page, tagId.carteRobocop)
+    emulateTagIdNfc(page, tagId(tenant).carteRobocop)
 
     // attente affichage "popup-cashless"
     await page.locator('#popup-cashless', {hasText: 'ROBOCOP'}).waitFor({state: 'visible'})
@@ -80,7 +84,7 @@ test.describe.skip('Retour consigne sur carte cashless.', () => {
     await page.locator('#popup-cashless', {hasText: 'Attente lecture carte'}).waitFor({state: 'visible'})
 
     // émule la carte nfc de Robocop
-    emulateTagIdNfc(page, tagId.carteRobocop)
+    emulateTagIdNfc(page, tagId(tenant).carteRobocop)
 
     // attente affichage "popup-cashless"
     await page.locator('#popup-cashless', {hasText: 'OK'}).waitFor({state: 'visible'})
@@ -113,7 +117,7 @@ test.describe.skip('Retour consigne sur carte cashless.', () => {
     await page.locator('#popup-cashless', {hasText: 'Attente lecture carte'}).waitFor({state: 'visible'})
 
     // émule la carte nfc de Robocop
-    emulateTagIdNfc(page, tagId.carteRobocop)
+    emulateTagIdNfc(page, tagId(tenant).carteRobocop)
 
     // attente affichage "popup-cashless"
     await page.locator('#popup-cashless', {hasText: 'ROBOCOP'}).waitFor({state: 'visible'})

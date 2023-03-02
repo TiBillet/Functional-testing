@@ -1,17 +1,22 @@
 import {test, expect} from '@playwright/test'
-import {userAgentString, connection, managerMode, goTableOrder, bigToFloat} from '../../mesModules/commun.js'
+import {getEnv, userAgentString, connection, managerMode, goTableOrder, bigToFloat} from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
+test.use({ignoreHTTPSErrors: true})
 test.use({viewport: {width: 1024, height: 800}})
 
-const urlTester = 'http://localhost:8001/wv/'
-
+const env = getEnv()
+const tenant = env.tenantToTest
+const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.domain
+const urlTester = urlRoot + '/wv/'
 let page
+
+
 // la liste d'articles
 const listeArticles = [{nom: "Eau 1L", nb: 1, prix: 1.5}, {nom: "CdBoeuf", nb: 2, prix: 25},
   {nom: "Chimay Rouge", nb: 2, prix: 2.6}, {nom: "Soft G", nb: 1, prix: 1.5}]
 
-test.describe.skip('Préparation(EX01 commande du test 0160, status: "Non Servie - Payée") mode gérant.', () => {
+test.describe('Préparation(EX01 commande du test 0160, status: "Non Servie - Payée") mode gérant.', () => {
   test('Context, connexion.', async ({browser}) => {
     page = await browser.newPage()
     await connection(page, urlTester)
@@ -26,7 +31,7 @@ test.describe.skip('Préparation(EX01 commande du test 0160, status: "Non Servie
     await goTableOrder(page, 'EX01')
 
     await Promise.all([
-      page.waitForResponse('http://localhost:8001/wv/preparation/6'),
+      page.waitForResponse(urlRoot + '/wv/preparation/6'),
       page.locator('#commandes-table-menu div >> text=Prépara.').click()
     ])
   })
@@ -44,7 +49,7 @@ test.describe.skip('Préparation(EX01 commande du test 0160, status: "Non Servie
 
     // Cliquer sur "Prépara." et attendre le retour des préparations pour la table EX01
     await Promise.all([
-      page.waitForResponse('http://localhost:8001/wv/preparation/6'),
+      page.waitForResponse(urlRoot + '/wv/preparation/6'),
       page.locator('#commandes-table-menu div >> text=Prépara.').click()
     ])
 
@@ -57,7 +62,7 @@ test.describe.skip('Préparation(EX01 commande du test 0160, status: "Non Servie
 
     // Cliquer sur le bouton "SUPPRIMER ARTICLE(S)" et attendre le retour des préparations pour la table S02
     await Promise.all([
-      page.waitForResponse('http://localhost:8001/wv/preparation'),
+      page.waitForResponse(urlRoot + '/wv/preparation'),
       await page.locator('.com-conteneur', {hasText: article.nom}).locator('.com-article-footer .com-ident-supp').click()
     ])
 
@@ -104,7 +109,7 @@ test.describe.skip('Préparation(EX01 commande du test 0160, status: "Non Servie
 
     // Cliquer sur le bouton "SUPPRIMER ARTICLE(S)" et attendre le retour des préparations pour la table S02
     await Promise.all([
-      page.waitForResponse('http://localhost:8001/wv/preparation'),
+      page.waitForResponse(urlRoot + '/wv/preparation'),
       await page.locator('.com-conteneur', {hasText: article.nom}).locator('.com-article-footer .com-ident-supp').click()
     ])
 

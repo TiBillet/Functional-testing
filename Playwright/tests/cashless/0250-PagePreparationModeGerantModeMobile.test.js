@@ -1,5 +1,6 @@
 import {test, expect} from '@playwright/test'
 import {
+  getEnv,
   userAgentString,
   connection,
   managerMode,
@@ -10,17 +11,21 @@ import {
 } from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
+test.use({ignoreHTTPSErrors: true})
 test.use({viewport: {width: 600, height: 800}})
 
-const urlTester = 'http://localhost:8001/wv/'
-
+const env = getEnv()
+const tenant = env.tenantToTest
+const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.domain
+const urlTester = urlRoot + '/wv/'
 let page
+
 // la liste d'articles
 const listeArticles = [{nom: "Eau 1L", nb: 1, prix: 1.5}, {nom: "CdBoeuf", nb: 1, prix: 25},
   {nom: "Soft G", nb: 2, prix: 1.5}, {nom: "Despé", nb: 1, prix: 3.2}, {nom: "Café", nb: 3, prix: 1}]
 let retour
 
-test.describe.skip('Préparation(EX02 commande du test 0170, status: "Non Servie - Payée") mode gérant, mobile 600x800.', () => {
+test.describe('Préparation(EX02 commande du test 0170, status: "Non Servie - Payée") mode gérant, mobile 600x800.', () => {
   test('Context, connexion.', async ({browser}) => {
     page = await browser.newPage()
     await connection(page, urlTester)
@@ -63,7 +68,7 @@ test.describe.skip('Préparation(EX02 commande du test 0170, status: "Non Servie
   test('Préparations(table EX02), mobile, mode non gérant.', async () => {
     // Cliquer sur "Prépara." et attendre le retour des préparations pour la table EX02
     const [response] = await Promise.all([
-      page.waitForResponse('http://localhost:8001/wv/preparation/7'),
+      page.waitForResponse(urlRoot + '/wv/preparation/7'),
       page.locator('#commandes-table-menu div >> text=Prépara.').click()
     ])
 
