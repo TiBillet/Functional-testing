@@ -286,6 +286,66 @@ export const resetCardCashless = async function (page, tagId) {
   })
 }
 
+
+/**
+ * Créditer une carte de crédits en crédits ou crédits cadeaux
+ * @param {object} page page html en cours
+ * @param {string} tagId
+ * @param {number} nbXCredit nbXCredit X credit
+ * @param {string} credit le credit (cadeau ou non)
+ * @returns {Promise<void>}
+ */
+export const creditCardCashlessOnion = async function (page, tagId, credit, nbXCredit) {
+  await test.step('Crediter la carte cashless.', async () => {
+    // attente affichage menu burger
+    await page.locator('.navbar-menu i[class~="menu-burger-icon"]').waitFor({state: 'visible'})
+    // Clique sur le menu burger
+    await page.locator('.menu-burger-icon').click()
+    // Click text=POINTS DE VENTES
+    await page.locator('text=POINTS DE VENTES').click()
+    // Click menu CASHLESS
+    await page.locator('#menu-burger-conteneur >> text=CASHLESS').click()
+    // attente affichage menu burger
+    await page.locator('.navbar-menu i[class~="menu-burger-icon"]').waitFor({state: 'visible'})
+
+    // nbXCredit x credit
+    await page.locator(`#products div[data-name-pdv="Cashless"] bouton-article[nom="${credit}"]`).click({clickCount: nbXCredit})
+
+    // cliquer sur bouton "VALIDER"
+    await page.locator('#bt-valider').click()
+
+    if (credit.toLowerCase().indexOf('cadeau') === -1) {
+      // attente affichage "Type(s) de paiement"
+      await page.locator('#popup-cashless', {hasText: 'Type(s) de paiement'}).waitFor({state: 'visible'})
+
+      // payer en espèces
+      await page.locator('#popup-cashless bouton-basique >> text=ESPECE').click()
+
+      // confirmation RETOUR | VALIDER
+      await confirmation(page, 'espece')
+
+      // VALIDER
+      await page.locator('#popup-confirme-valider').click()
+    }
+
+    // attente affichage "Attente lecture carte"
+    await page.locator('#popup-cashless', {hasText: 'Attente lecture carte'}).waitFor({state: 'visible'})
+
+    // carte nfc de robocop
+    await emulateTagIdNfc(page, tagId)
+
+    // Transaction OK !
+    await expect(page.locator('#popup-cashless div[class="popup-titre1"] >> text=Transaction OK !')).toBeVisible()
+
+    // sortir de "popup-cashless"
+    await page.locator('#popup-retour').click()
+
+    // #popup-cashless éffacé
+    await expect(page.locator('#popup-cashless')).toBeHidden()
+
+  })
+}
+
 /**
  * Créditer une carte de crédits et crédits cadeau
  * @param {object} page page html en cours
@@ -305,7 +365,7 @@ export const creditCardCashless = async function (page, tagId, nbXCredit10, nbXC
       await page.locator('.menu-burger-icon').click()
       // Click text=POINTS DE VENTES
       await page.locator('text=POINTS DE VENTES').click()
-      // Click #menu-burger-conteneur >> text=Bar 1
+      // Click menu CASHLESS
       await page.locator('#menu-burger-conteneur >> text=CASHLESS').click()
 
       // attente affichage menu burger

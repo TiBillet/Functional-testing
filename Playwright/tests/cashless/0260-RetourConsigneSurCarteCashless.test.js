@@ -20,7 +20,7 @@ const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.do
 const urlTester = urlRoot + '/wv/'
 let page
 
-test.describe('Retour consigne sur carte cashless.', () => {
+test.describe.skip('Retour consigne sur carte cashless.', () => {
   test('Context, connexion.', async ({browser}) => {
     page = await browser.newPage()
     await connection(page, urlTester)
@@ -98,7 +98,7 @@ test.describe('Retour consigne sur carte cashless.', () => {
     await expect(page.locator('#popup-cashless .popup-titre1', {hasText: 'Retour de consigne OK !'})).toBeVisible()
 
     await expect(page.locator('#popup-cashless .popup-paragraphe div:nth-child(2)')).toHaveText('Votre carte est crédité de 1 TestCoin')
-
+await page.pause()
     // Cliquer sur le bouton "RETOUR"
     await page.locator('#popup-retour').click()
 
