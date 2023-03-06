@@ -180,7 +180,6 @@ export const connectionAdmin = async function (pageAdmin, tenant) {
 export const connection = async function (page, urlTester) {
   await test.step('Connexion', async () => {
     await page.goto(urlTester)
-    await page.pause()
     // lecture carte (client)
     await expect(page.locator('text=attente', {ignoreCase: true})).toBeVisible()
     await expect(page.locator('text=lecture carte', {ignoreCase: true})).toBeVisible()

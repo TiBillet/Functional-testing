@@ -11,7 +11,7 @@ const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.do
 const urlTester = urlRoot + '/wv/'
 let page
 
-test.describe.only('Point de vente, service direct et commandes', () => {
+test.describe('Point de vente, service direct et commandes', () => {
   test("Service direct", async ({browser}) => {
     page = await browser.newPage()
 

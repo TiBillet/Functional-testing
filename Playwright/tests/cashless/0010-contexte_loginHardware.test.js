@@ -11,7 +11,7 @@ const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.do
 const urlTester = urlRoot + '/wv/login_hardware'
 let page
 
-test.describe('Connexion appareils client.', () => {
+test.describe('Appairage, connexion appareils client.', () => {
   test('login_hardware', async ({browser}) => {
     // 1 - connexion appareil client
     page = await browser.newPage()
