@@ -1,4 +1,4 @@
-/.env
+.env
 /Playwright/playwright-report/
 /Playwright/env.json
 /Playwright/mesModules/dataPeuplementTempo.json
