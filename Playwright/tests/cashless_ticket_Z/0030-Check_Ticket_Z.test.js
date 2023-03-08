@@ -11,7 +11,8 @@ import {
   selectArticles,
   confirmation,
   totalListeArticles,
-  connectionAdmin
+  connectionAdmin,
+  getPropsArticles
 } from '../../mesModules/commun.js'
 
 test.use({userAgent: userAgentString})
@@ -24,13 +25,22 @@ const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.do
 const urlTester = urlRoot + '/wv/'
 let page
 
+// pour la sélection des articles
+const listeArticles = [{nom: "Soft P", nb: 1, prix: 1}, {nom: "Soft G", nb: 1, prix: 1.5},
+  {nom: "Guinness", nb: 1, prix: 4.99}, {nom: "Despé", nb: 1, prix: 3.2}, {nom: "Chimay Bleue", nb: 1, prix: 2.8},
+  {nom: "Chimay Rouge", nb: 1, prix: 2.6}, {nom: "CdBoeuf", nb: 1, prix: 25}, {nom: "Gateau", nb: 1, prix: 8}
+]
+
+// pour tester le template ticket Z (données récupérées dans l'app et testées dans l'admin)
+let compListArticles = []
+
 test.describe.only('Check Ticket Z.', () => {
   test('Context, connexion.', async ({browser}) => {
     page = await browser.newPage()
     await connection(page, urlTester)
   })
 
-  test('Crédits: 5 cadeau + 20, le tout en paiement CB.', async () => {
+  test.skip('Crédits: 5 cadeau + 20, le tout en paiement CB.', async () => {
     // vider carte
     await resetCardCashless(page, tagId(tenant).carteTest)
 
@@ -69,17 +79,12 @@ test.describe.only('Check Ticket Z.', () => {
     await expect(page.locator('#popup-cashless')).toBeHidden()
   })
 
-  test('Articles: 1 SoftP + 1 SoftG + 1 Guinness + 1 Despe + 1 CHimay Bleue + 1 Chimay rouge + 2 CdBoeuf + 1 Gateau', async () => {
+  test.skip('Articles: 1 SoftP + 1 SoftG + 1 Guinness + 1 Despe + 1 CHimay Bleue + 1 Chimay rouge + 2 CdBoeuf + 1 Gateau', async () => {
     await goPointSale(page, 'BAR 1')
 
     // attente pv "Bar 1"
     await page.locator('.navbar-horizontal .titre-vue', {hasText: 'Service Direct - Bar 1'}).waitFor({state: 'visible'})
 
-    // sélection des articles
-    const listeArticles = [{nom: "Soft P", nb: 1, prix: 1}, {nom: "Soft G", nb: 1, prix: 1.5},
-      {nom: "Guinness", nb: 1, prix: 4.99}, {nom: "Despé", nb: 1, prix: 3.2}, {nom: "Chimay Bleue", nb: 1, prix: 2.8},
-      {nom: "Chimay Rouge", nb: 1, prix: 2.6}, {nom: "CdBoeuf", nb: 1, prix: 25}, {nom: "Gateau", nb: 1, prix: 8}
-    ]
     await selectArticles(page, listeArticles, "Bar 1")
 
     // valider commande
@@ -124,7 +129,6 @@ test.describe.only('Check Ticket Z.', () => {
     })
     expect(backGroundColor).toEqual('rgb(51, 148, 72)')
 
-
     // résultat du dom(front)
     const totalOnDom = await page.evaluate(async () => {
       return parseFloat(document.querySelector('#popup-cashless > div > div div[class="popup-msg1 test-total-achats"] #test-somme-payee').innerText)
@@ -139,11 +143,29 @@ test.describe.only('Check Ticket Z.', () => {
     // #popup-cashless éffacé
     await expect(page.locator('#popup-cashless')).toBeHidden()
 
-    await page.pause()
-
+    // await page.close()
   })
 
-  test.only('Vérification ticket Z admin.', async ({browser}) => {
+  test('Récup prix articles du PV Bar 1.', async () => {
+    const listeArticlesNue = [{nom: "Soft P", nb: 1}, {nom: "Soft G", nb: 1},
+      {nom: "Guinness", nb: 1}, {nom: "Despé", nb: 1}, {nom: "Chimay Bleue", nb: 1},
+      {nom: "Chimay Rouge", nb: 1}, {nom: "CdBoeuf", nb: 1}, {nom: "Gateau", nb: 1}
+    ]
+
+    // le prix des articles est récupéré dans le scope de l'aplication d'où goPointSale et attente pv "Bar 1"
+    await goPointSale(page, 'BAR 1')
+    // attente pv "Bar 1"
+    await page.locator('.navbar-horizontal .titre-vue', {hasText: 'Service Direct - Bar 1'}).waitFor({state: 'visible'})
+    // récup données
+    const compListArticles = await getPropsArticles(page, listeArticlesNue, 'Bar 1')
+
+    // en attente de codage (utilisation de .skip et .only)
+    await page.pause()
+    await page.close()
+  })
+
+  test.skip('Vérification ticket Z admin.', async ({browser}) => {
+
     const urlAdmin = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.domain
     const pageAdmin = await browser.newPage()
     await pageAdmin.goto(urlAdmin)
@@ -160,6 +182,7 @@ test.describe.only('Check Ticket Z.', () => {
     await pageAdmin.pause()
 
     // Attend la fin de requête suite au clique sur la première ligne du tableau
+    // TODO: Corriger le nom du tenant, il ne correspond pas !!
     // TibilletCashlessDev/DjangoFiles/administration/templates/rapports/ticketZ.html
     // TODO: @jonas, suivant les données à extraite, il faut données une "class css" aux titres de chaque tableau
     // pour avoir un repère (les données sont dynamique, mais la class reste).
@@ -168,7 +191,6 @@ test.describe.only('Check Ticket Z.', () => {
       pageAdmin.waitForRequest(urlRoot + '/rapport/**'),
       pageAdmin.locator('#result_list tbody tr > th a').click()
     ])
-
 
     await pageAdmin.close()
   })

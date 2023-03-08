@@ -447,6 +447,20 @@ export const creditCardCashless = async function (page, tagId, nbXCredit10, nbXC
   })
 }
 
+export const getPropsArticles = async function (page, listArticlesSel, pv) {
+  return await page.evaluate(async ([listArticlesSel, pv]) => {
+    let tab = []
+    const articles = glob.data.find(obj => obj.name === pv).articles
+    for (let i = 0; i < listArticlesSel.length; i++) {
+      const nom = listArticlesSel[i].nom
+      const nb = listArticlesSel[i].nb
+      const article = articles.find(obj => obj.name === nom)
+      tab.push({nom, nb, tva: article.categorie.tva.taux, prix: article.prix})
+    }
+    return tab
+  }, [listArticlesSel, pv])
+}
+
 /**
  * Sélectionne des articles
  * @param {object} page
