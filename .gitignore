@@ -4,3 +4,4 @@ env.json
 /Playwright/mesModules/dataPeuplementTempo.json
 /Playwright/playwright-report/
 /Playwright/node_modules/
+.idea

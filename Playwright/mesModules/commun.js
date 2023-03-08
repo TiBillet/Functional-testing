@@ -351,9 +351,10 @@ export const creditCardCashlessOnion = async function (page, tagId, credit, nbXC
  * @param {string} tagId
  * @param {number} nbXCredit10 fois 10 credit
  * @param {number} nbXCreditCadeau5 fois 5 credit cadeau
+ * @param {string} paiement le moyen de paiement
  * @returns {Promise<void>}
  */
-export const creditCardCashless = async function (page, tagId, nbXCredit10, nbXCreditCadeau5) {
+export const creditCardCashless = async function (page, tagId, nbXCredit10, nbXCreditCadeau5, paiement) {
   await test.step('Crediter la carte cashless.', async () => {
     // attente affichage menu burger
     await page.locator('.navbar-menu i[class~="menu-burger-icon"]').waitFor({state: 'visible'})
@@ -379,11 +380,17 @@ export const creditCardCashless = async function (page, tagId, nbXCredit10, nbXC
       // attente affichage "Type(s) de paiement"
       await page.locator('#popup-cashless', {hasText: 'Type(s) de paiement'}).waitFor({state: 'visible'})
 
-      // payer en espèces
-      await page.locator('#popup-cashless bouton-basique >> text=ESPECE').click()
+      // payer en espèces + confirmation
+      if (paiement === undefined || paiement === 'espece') {
+        await page.locator('#popup-cashless bouton-basique >> text=ESPECE').click()
+        await confirmation(page, 'espece')
+      }
 
-      // confirmation RETOUR | VALIDER
-      await confirmation(page, 'espece')
+      // payer par CB + confirmation
+      if (paiement === 'cb') {
+        await page.locator('#popup-cashless bouton-basique >> text=CB').click()
+        await confirmation(page, 'cb')
+      }
 
       // VALIDER
       await page.locator('#popup-confirme-valider').click()
@@ -586,6 +593,21 @@ export function bigToFloat(value) {
   }
 }
 
+
+/**
+ * Retour le total de la liste d'articles
+ * @param {array.<object>} list liste(objet) d'articles
+ * @returns {number}
+ */
+export function totalListeArticles(list) {
+  let total = new Big(0)
+  for (let i = 0; i < list.length; i++) {
+    const article = list[i]
+    total = total.plus(new Big(article.prix).times(article.nb))
+  }
+  return parseFloat(total.valueOf())
+}
+
 /**
  * Aller à la commande de la table
  * @param {object} page page html en cours
@@ -669,3 +691,4 @@ export async function evaluateOnclickFunctionString(page, selecteurs) {
     return document.querySelector(selecteurs).onclick.valueOf().toString()
   }, [selecteurs])
 }
+

@@ -22,7 +22,8 @@ const urlRoot = 'https://' + env.cashlessServer[tenant].subDomain + '.' + env.do
 const urlTester = urlRoot + '/wv/'
 let page
 
-test.describe('Retour consigne.', () => {
+// test bloqué pour cause de branche, une fois la branche "retour_consigne" mergée, le test pourra être appelé !
+test.describe.skip('Retour consigne.', () => {
   test('Connexion.', async ({browser}) => {
     page = await browser.newPage()
     await connection(page, urlTester)

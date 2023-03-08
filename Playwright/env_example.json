@@ -1,4 +1,5 @@
 {
+  "tenantToTest": "demo",
   "domain": "tibillet.localhost",
   "device": {
     "hostname": "phenix",

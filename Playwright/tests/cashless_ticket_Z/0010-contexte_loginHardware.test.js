@@ -30,7 +30,7 @@ test.describe('Appairage, connexion appareils client.', () => {
       await pageAdmin.goto(urlRoot)
 
       // connexion admin
-      await connectionAdmin(pageAdmin, tenant)
+      connectionAdmin(pageAdmin, tenant)
 
       // clique menu "Appareils"
       await pageAdmin.locator('.sidebar-dependent .sidebar-section div a span[class="sidebar-link-label"]', {hasText: 'Appareils'}).click()
